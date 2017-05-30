@@ -5,24 +5,24 @@
 % Trisha Lian
 
 %% Initialize
-clear; close all;
+clear all; 
+close all; 
+clc;
+
 ieInit;
 
-% We must be in the same folder as this script
-[path,name,ext] = fileparts(mfilename('fullpath'));
-cd(path);
 
 %% Choose renderer options
-hints.imageWidth = 300;
-hints.imageHeight = 300;
+hints.imageWidth = 320;
+hints.imageHeight = 240;
 hints.recipeName = 'UnderwaterChart'; % Name of the render
 hints.renderer = 'PBRT'; % We're only using PBRT right now
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 
 % Change the docker container
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @rtbUnderwaterMexximpRemodeller;
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @rtbUnderwaterPBRTRemodeller;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller;
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
 
 resourceFolder = rtbWorkingFolder('folderName','resources',...
@@ -31,9 +31,10 @@ resourceFolder = rtbWorkingFolder('folderName','resources',...
                               
 %% Load scene
 
-parentSceneFile = 'Blender/underwaterRealisticFlat.obj'; 
+parentSceneFile = fullfile(uwSimulationRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae'); 
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
+    'imagemagicImage','hblasins/imagemagic-docker',...
     'toReplace',{'jpg','png'},...
     'targetFormat','exr',...
     'workingFolder',resourceFolder);
@@ -43,17 +44,13 @@ scene = mexximpCentralizeCamera(scene);
 
 %% Make light spectrums
 
-resources = GetWorkingFolder('resources', false, hints);
-load B_cieday % From psychtoolbox
-
-% Control the distant light
-[wls,spd] = ReadSpectrum('D65.spd');
+% Sunlight (aka distant light)
+fName = fullfile(rtbRoot,'RenderData','D65.spd');
+[wls,spd] = rtbReadSpectrum(fName);
 spd = spd.*10^10;
-WriteSpectrumFile(wls, spd, ...
-    fullfile(rtbWorkingFolder('hints', hints), 'DistantLight.spd')); 
+rtbWriteSpectrumFile(wls, spd, fullfile(resourceFolder, 'DistantLight.spd')); 
         
-%% Copy cube spectra over to the working folder
-
+% Macbeth cube reflectances
 for i = 1:24
     macbethPath = fullfile(rtbRoot(),'RenderData','Macbeth-ColorChecker',sprintf('mccBabel-%i.spd',i));
     copyfile(macbethPath, rtbWorkingFolder('hints', hints)); 
@@ -75,9 +72,9 @@ largeParticleConc= [0 0  0  0  0  0   0 0 0 0   0 0 0 0   0 0.01 0.05 0.1];
 waterDepth = 6*10^3;
 nConditions = length(waterDepth);
 
-pixelSamples = ones(1,nConditions).*256;
+pixelSamples = ones(1,nConditions).*32;
 volumeStepSize = ones(1,nConditions).*50;
-cameraDistance = ones(1,nConditions).*1500; % mm
+cameraDistance = ones(1,nConditions).*1000; % mm
 
 chlorophyll = ones(1,nConditions).*4.0;
 dom = ones(1,nConditions).*0.0;
@@ -92,14 +89,14 @@ for i = 1:nConditions
     % Create absorption curve
     [sig_a, waves] = createAbsorptionCurve(chlorophyll(i),dom(i));
     absorptionFileName = sprintf('abs_%i.spd',i);
-    rtbWriteSpectrumFile(waves, sig_a, fullfile(resources, absorptionFileName));
+    rtbWriteSpectrumFile(waves, sig_a, fullfile(resourceFolder, absorptionFileName));
     
     % Create scattering curve and phase function
     [phase, sig_s, waves] = calculateScattering(smallParticleConc(i),largeParticleConc(i),'mode','default');
     scatteringFileName = sprintf('scat_%i.spd',i);
-    rtbWriteSpectrumFile(waves,sig_s,fullfile(resources,scatteringFileName));
+    rtbWriteSpectrumFile(waves,sig_s,fullfile(resourceFolder,scatteringFileName));
     phaseFileName = sprintf('phase_%i.txt',i);
-    WritePhaseFile(waves,phase,fullfile(resources,phaseFileName));
+    WritePhaseFile(waves,phase,fullfile(resourceFolder,phaseFileName));
     
     % Pass file names to conditions
     absorptionFiles{i} = absorptionFileName;
@@ -107,8 +104,11 @@ for i = 1:nConditions
     phaseFiles{i} = phaseFileName;
 end
 
+%% Create the conditions file
+
 names = {'pixelSamples','cameraDistance','waterDepth','volumeStepSize', ...
     'absorptionFiles','scatteringFiles','phaseFiles'};
+
 values = cell(nConditions, numel(names));
 values(:,1) = num2cell(pixelSamples,1);
 values(:,2) = num2cell(cameraDistance,1);
@@ -133,35 +133,35 @@ radianceDataFiles = rtbBatchRender(nativeSceneFiles, ...
 
 %% View as an OI
 
-renderingsFolder = rtbWorkingFolder( ...
-    'folderName', 'renderings',...
+renderingsFolder = rtbWorkingFolder('folderName', 'renderings',...
+    'rendererSpecific',true,...
     'hints', hints);
-
-waterOi = cell(nConditions,1);
 
 % Load in rendered data
 for i = 1:nConditions
     
-radianceData = load(radianceDataFiles{i});
-photons = fliplr(radianceData.multispectralImage); % TODO: Fix Macbeth indexing later
-max(photons(:))
-
-oiName = sprintf('%s_%i_%0.2f_%0.2f_%0.2f',hints.recipeName,waterDepth(i)/10^3,chlorophyll(i),dom(i),smallParticleConc(i));
-
-% Create an oi
-oi = oiCreate;
-oi = initDefaultSpectrum(oi);
-oi = oiSet(oi, 'photons', single(photons)); % I believe the scaling here is arbitrary.
-oi = oiSet(oi,'name',oiName);
-
-vcAddAndSelectObject(oi);
-
-% Save oi
-% TODO: Save rendering parameters in oi?
-save(fullfile(renderingsFolder,strcat(oiName,'.mat')),'oi');
-
-waterOi{i} = oi;
-
+    radianceData = load(radianceDataFiles{i});
+    
+    oiName = sprintf('%s_%i_%0.2f_%0.2f_%0.2f',hints.recipeName,waterDepth(i)/10^3,chlorophyll(i),dom(i),smallParticleConc(i));
+    
+    % Create an oi
+    oi = oiCreate;
+    oi = initDefaultSpectrum(oi);
+    oi = oiSet(oi,'photons',radianceData.multispectralImage*radianceData.radiometricScaleFactor);
+    oi = oiSet(oi,'name',oiName);
+    
+    vcAddAndSelectObject(oi);
+    
+    % Save oi
+    fName = fullfile(renderingsFolder,strcat(oiName,'.mat'));
+    depth = waterDepth(i);
+    chlC = chlorophyll(i);
+    cdomC = dom(i);
+    smallPart = smallParticleConc(i);
+    largePart = largeParticleConc(i);
+    
+    save(fName,'oi','depth','chlC','cdomC','smallPart','largePart');
+        
 end
 
 oiWindow;

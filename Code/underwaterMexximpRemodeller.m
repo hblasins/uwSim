@@ -1,4 +1,4 @@
-function [scene, mappings] = rtbCrytekMexximpRemodeler(scene, mappings, names, conditionValues, conditionNumber)
+function [scene, mappings] = underwaterMexximpRemodeller(scene, mappings, names, conditionValues, conditionNumber)
 
 % This is an example of how to modify the incoming mexximp scene directly,
 % with a "remodeler" hook funtion.  It modifies the scene struct that will
@@ -34,12 +34,11 @@ scene.rootNode.children(cameraNodeSelector).transformation = cameraTransform;
 ambient = mexximpConstants('light');
 ambient.position = [0 0 0]';
 ambient.type = 'directional';
-% ambient.type = 'point';
 ambient.name = 'SunLight';
 ambient.lookAtDirection = [0 0 -1]';
 ambient.ambientColor = 10*[1 1 1]';
 ambient.diffuseColor = 10*[1 1 1]';
-ambient.specularcolor = 10*[1 1 1]';
+ambient.specularColor = 10*[1 1 1]';
 ambient.constantAttenuation = 1;
 ambient.linearAttenuation = 0;
 ambient.quadraticAttenuation = 1;
