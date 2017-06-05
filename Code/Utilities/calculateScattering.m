@@ -60,10 +60,10 @@ switch inputs.mode
         % 0 to 180 degrees
         % Do nothing.
     case 'backward'
-        % Only 0 to 90 degrees
+        % Only 90 to 180 degrees and 0 degrees
         phaseFunction( angles > 1 & angles <= 90,:) = 0;
     case 'forward'
-        % Only 90 to 180 degrees and 0 degrees.
+        % Only 0 to 90
         phaseFunction(angles > 90,:) = 0;
     case 'direct'
         % Only 0 degrees

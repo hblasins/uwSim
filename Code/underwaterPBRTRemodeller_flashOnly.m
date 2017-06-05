@@ -15,6 +15,9 @@ absorptionFile = rtbGetNamedValue(names, conditionValues, 'absorptionFiles', [])
 scatteringFile = rtbGetNamedValue(names, conditionValues, 'scatteringFiles', []);
 phaseFile = rtbGetNamedValue(names, conditionValues, 'phaseFiles', []);
 
+flashDistanceFromChart = rtbGetNamedNumericValue(names, conditionValues, 'flashDistanceFromChart', []);
+flashDistanceFromCamera = rtbGetNamedNumericValue(names, conditionValues, 'flashDistanceFromCamera', []);
+
 %% Choose sampler.
 
 % Change the number of samples
@@ -55,14 +58,19 @@ camera.setParameter('filmdistance', 'float', filmDistance);
 
 %% Change light spectra
 
-distantLight = nativeScene.world.find('LightSource','name','1_SunLight');
-distantLight.setParameter('L','spectrum','resources/DistantLight.spd');
-distantLight.setParameter('from','point',[0 0 20000]);
-distantLight.setParameter('to','point',[0 2000 0]);
+pointLight = nativeScene.world.find('LightSource','name','PointLight');
+pointLight.setParameter('I','spectrum','resources/PointLight.spd');
+pointLight.setParameter('from','point',[flashDistanceFromCamera (5000-flashDistanceFromChart) 0]);
 
 % Remove extra lights
 nativeScene.world.find('LightSource','name','3_SunLight','remove',true);
-nativeScene.world.find('LightSource','name','PointLight','remove',true);
+nativeScene.world.find('LightSource','name','1_SunLight','remove',true);
+
+% TEST
+% pointLight = nativeScene.world.find('LightSource','name','PointLight');
+% pointLight.setParameter('I','spectrum','resources/DistantLight.spd');
+% nativeScene.world.find('LightSource','name','3_SunLight','remove',true);
+% nativeScene.world.find('LightSource','name','1_SunLight','remove',true);
 
 %% Attach spectra to the cubes
 
