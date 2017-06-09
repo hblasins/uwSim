@@ -119,9 +119,10 @@ end
 
 % --- WATER PARAMETERS ---
 
-nConditions = 5; % Number of images of varying parameters to render
+waterDepth = [0:20]*10^3; % mm
 
-waterDepth = [0 5 10 15 20]*10^3; % mm
+nConditions = length(waterDepth); % Number of images of varying parameters to render
+
 pixelSamples = ones(1,nConditions).*32;
 volumeStepSize = ones(1,nConditions).*50;
 cameraDistance = ones(1,nConditions).*1000; % mm
