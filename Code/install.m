@@ -11,4 +11,4 @@ clc;
 addpath(codePath);
 
 addpath(fullfile(codePath,'Utilities'));
-addpath(fullfile(codePath,'Parameters'));
+addpath(fullfile(parentDir,'Parameters'));
