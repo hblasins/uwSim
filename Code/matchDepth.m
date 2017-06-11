@@ -83,19 +83,24 @@ save('realRGB_Depth.mat','measuredRGB','imageNames','comment');
 load('simulatedRGB_Depth.mat');
 load('realRGB_Depth.mat');
 
-% matches = cell{}
-% for m = 1:size(measuredRGB,3)
-%     
-%     RMS = zeros(size(simulatedRGB,3),1);
-%     
-%     for s = 1:size(simulatedRGB,3)    
-%         RMS(s) = rms(measuredRGB{m} - simulatedRGB{s});
-%     end
-%     
-%     minIndex = min(RMS);
-%     
-%     
-% end
+matches = cell(size(simulatedRGB,3),2);
+for m = 1:size(measuredRGB,2)
+    
+    RMS = zeros(size(simulatedRGB,3),1);
+    
+    for s = 1:size(simulatedRGB,2)   
+        diff = measuredRGB{m} - simulatedRGB{s};
+        RMS(s) = mean(mean(rms(diff,3)));
+    end
+    
+    minIndex = find(RMS == min(RMS));
+    figure(1); clf;
+    subplot(1,2,1);
+    imshow(imresize())
+    matches{m,1} = imageNames{m};
+    matches{m,2} = depth_m(minIndex);
+    
+end
 
 %%
 function filenames = getfn(mydir, pattern)
