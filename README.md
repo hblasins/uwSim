@@ -1,5 +1,9 @@
-# uwSim
-Underwater image simulation
+# Underwater Camera Simulation
+
+This repository contains Matlab scripts that demonstrate how to use physics based ray-tracing
+to simulate underwater imaging systems. 
+
+
 
 
 ## Dependencies
@@ -16,3 +20,11 @@ A cross-platform Docker engine is required to run these.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
 
 ## Data
+
+In order to reproduce the results from our publications please download the input data from
+[Stanford Digital Repository].
+
+## Installation
+
+Please clone the repository to your local drive. From MATLAB run '/Code/install.m' function 
+to correctly set up MATLAB PATH in your environment. 
