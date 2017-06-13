@@ -13,6 +13,7 @@ installed.
 
 * [RenderToolbox4](http://rendertoolbox.org) - a set of Matlab tools to create, manipulate and
 render complex 3D scene files.
+* [ASSIMP](http://www.assimp.org) - Asset Import Library providing support for reading a variety of 3D scene file formats.
 * [Docker](https://www.docker.com) - RenderToolbox4 uses either Mitsuba or PBRT renderers to 
 produce final images. Rather than install these programs we provide their dockerized implementations.
 A cross-platform Docker engine is required to run these.
@@ -28,3 +29,10 @@ In order to reproduce the results from our publications please download the inpu
 
 Please clone the repository to your local drive. From MATLAB run `Code/install.m` function 
 to correctly set up MATLAB PATH in your environment. 
+
+## Directory structure
+
+* **Code** contains all the Matlab source code
+* **Parameters** contains calibration data for different cameras and light sources. For example
+the spectral responsivities of the Canon G7X used in the experiments.
+* **Scenes** 3D scene files used in simulations. We usually generate these scenes in [Blender](https://www.blender.org)
