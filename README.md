@@ -26,5 +26,5 @@ In order to reproduce the results from our publications please download the inpu
 
 ## Installation
 
-Please clone the repository to your local drive. From MATLAB run '/Code/install.m' function 
+Please clone the repository to your local drive. From MATLAB run `Code/install.m` function 
 to correctly set up MATLAB PATH in your environment. 
