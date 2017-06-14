@@ -1,4 +1,4 @@
-function WriteVSFFile(wavelengths,vsf,filename)
+function writePhaseFile(wavelengths,vsf,filename)
          
 
 %          The VSF is a 2D matrix with the rows being the angles (0 to 179 degrees) and the columns being wavelength samples.

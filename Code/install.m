@@ -11,4 +11,5 @@ clc;
 addpath(codePath);
 
 addpath(fullfile(codePath,'Utilities'));
+addpath(fullfile(codePath,'Remodellers'));
 addpath(fullfile(parentDir,'Parameters'));

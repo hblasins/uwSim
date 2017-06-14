@@ -9,8 +9,11 @@ function [rgbImageSimulated, rgbAverageSimulated] = processSimulatedChart(oiFile
 
 % --------------------------------
 % --- CHANGE THIS FOR FILTERS ----
+
+
+
 wave = 400:10:700;
-fName = fullfile(uwSimulationRootPath,'Canon1DMarkIII');
+fName = fullfile(uwSimRootPath,'..','Parameters','CanonG7X');
 camera = ieReadColorFilter(wave,fName);
 % --------------------------------
 % --------------------------------

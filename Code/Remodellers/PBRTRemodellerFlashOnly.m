@@ -1,4 +1,4 @@
-function nativeScene = underwaterPBRTRemodeller(parentScene,nativeScene,mappings,names,conditionValues,conditionNumber)
+function nativeScene = PBRTRemodellerFlashOnly(parentScene,nativeScene,mappings,names,conditionValues,conditionNumber)
 
 % The function is called by the batch renderer when needed.  Various
 % parameters are passed in, like the mexximp scene, the native scene, and
@@ -8,12 +8,15 @@ function nativeScene = underwaterPBRTRemodeller(parentScene,nativeScene,mappings
 
 pixelSamples = rtbGetNamedNumericValue(names, conditionValues, 'pixelSamples', []);
 waterDepth = rtbGetNamedNumericValue(names, conditionValues, 'waterDepth', []);
-cameraPosition = rtbGetNamedNumericValue(names, conditionValues, 'cameraPosition',[]);
+cameraDistance = rtbGetNamedNumericValue(names, conditionValues, 'cameraDistance',[]);
 volumeStepSize = rtbGetNamedNumericValue(names, conditionValues, 'volumeStepSize', []);
 
 absorptionFile = rtbGetNamedValue(names, conditionValues, 'absorptionFiles', []);
 scatteringFile = rtbGetNamedValue(names, conditionValues, 'scatteringFiles', []);
 phaseFile = rtbGetNamedValue(names, conditionValues, 'phaseFiles', []);
+
+flashDistanceFromChart = rtbGetNamedNumericValue(names, conditionValues, 'flashDistanceFromChart', []);
+flashDistanceFromCamera = rtbGetNamedNumericValue(names, conditionValues, 'flashDistanceFromCamera', []);
 
 %% Choose sampler.
 
@@ -22,9 +25,6 @@ sampler = nativeScene.find('Sampler');
 sampler.setParameter('pixelsamples', 'integer', pixelSamples);
 
 %% Add water parameters
-
-% integrator = nativeScene.find('SurfaceIntegrator');
-% integrator.type = 'path';
 
 % Add volume integrator
 nativeScene.overall.find('SurfaceIntegrator','remove',true);
@@ -49,7 +49,6 @@ nativeScene.world.append(volume);
 
 filmHalfDiag = 10;
 targetHalfDiag = 1.2*sqrt(4^2+6^2)*24/2;
-cameraDistance = sqrt(sum((cameraPosition' - [0,5000,0]).^2));
 filmDistance = filmHalfDiag*cameraDistance/targetHalfDiag;
 
 camera =  nativeScene.find('Camera');
@@ -59,22 +58,19 @@ camera.setParameter('filmdistance', 'float', filmDistance);
 
 %% Change light spectra
 
-distantLight = nativeScene.world.find('LightSource','name','1_SunLight');
-distantLight.setParameter('L','spectrum','resources/DistantLight.spd');
-distantLight.setParameter('from','point',[0 0 20000]);
-distantLight.setParameter('to','point',[0 2000 0]);
-
-pointLight1 = nativeScene.world.find('LightSource','name','PointLight1');
-pointLight1.setParameter('I','spectrum','resources/PointLight.spd');
-pointLight1.setParameter('from','point',[1000 0 0]);
-
-pointLight2 = nativeScene.world.find('LightSource','name','PointLight2');
-pointLight2.setParameter('I','spectrum','resources/PointLight.spd');
-pointLight2.setParameter('from','point',[-1500 0 0]);
+pointLight = nativeScene.world.find('LightSource','name','PointLight');
+pointLight.setParameter('I','spectrum','resources/PointLight.spd');
+pointLight.setParameter('from','point',[flashDistanceFromCamera (5000-flashDistanceFromChart) 0]);
 
 % Remove extra lights
-%nativeScene.world.find('LightSource','name','3_SunLight','remove',true);
+nativeScene.world.find('LightSource','name','3_SunLight','remove',true);
+nativeScene.world.find('LightSource','name','1_SunLight','remove',true);
 
+% TEST
+% pointLight = nativeScene.world.find('LightSource','name','PointLight');
+% pointLight.setParameter('I','spectrum','resources/DistantLight.spd');
+% nativeScene.world.find('LightSource','name','3_SunLight','remove',true);
+% nativeScene.world.find('LightSource','name','1_SunLight','remove',true);
 
 %% Attach spectra to the cubes
 

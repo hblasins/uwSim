@@ -1,4 +1,4 @@
-function [ sensor,  cp, img, meta] = readCameraImage( path )
+function [ sensor,  cp, img, meta] = readCameraImage( path, sensor )
 
 [directory, file] = fileparts(path);
 
@@ -26,7 +26,6 @@ for i=1:size(fieldNames)
 end
 
 % Create an ISET image sensor
-sensor = sensorCreate('bayer (gbrg)');
 sensor = sensorSet(sensor,'size',size(img));
 sensor = sensorSet(sensor,'volts',img);
 

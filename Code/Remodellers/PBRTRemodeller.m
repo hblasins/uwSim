@@ -1,4 +1,4 @@
-function nativeScene = underwaterPBRTRemodeller(parentScene,nativeScene,mappings,names,conditionValues,conditionNumber)
+function nativeScene = PBRTRemodeller(parentScene,nativeScene,mappings,names,conditionValues,conditionNumber)
 
 % The function is called by the batch renderer when needed.  Various
 % parameters are passed in, like the mexximp scene, the native scene, and

@@ -1,28 +1,22 @@
-%% Render underwater chart with varying depth.
-
-% This script renders 5 images at different depths.
+%% Render underwater chart
 
 % ----
 % From renderUnderwaterChart.m
 
 % Render a simulated macbeth chart underwater under specific water
-% parameters.
-
-% Water parameters include:
+% parameters. This script generates images for all possible combinations 
+% of the 5 parameters:
 
 % 1. waterDepth = Depth of chart underwater.
 % 2. chlorophyll = Chlorophyll concentration in mg*m^-3
 % 3. dom = Dissolved organic matter concentration in m^-1
 % 4. largeParticleConc = Large particles concentration in ppm
 % 5. smallParticleConc = Small particles concenrtation in ppm
-% 6. cameraDistance = Distance between camera and chart in mm
 
 % After rendering, the script saves an MAT file containing underwater
-% parameters and an oi structure (for iset). This MAT file can then be
-% processed through sensor and ISP and analyzed using
-% "processUnderwaterChart.m."
+% parameters and an oi structure (for ISET). 
 
-% Trisha Lian
+% Copyright, Trisha Lian, Henryk Blasinski 2017
 
 %% Initialize
 
@@ -32,12 +26,17 @@ clc;
 
 ieInit;
 
+[codePath, parentPath] = uwSimRootPath();
+
+destPath = fullfile(parentPath,'Results','All');
+if ~exist(destPath,'dir'), mkdir(destPath); end
+
 %% Choose rendering options
 
 hints.imageWidth = 320;
 hints.imageHeight = 240;
 
-hints.recipeName = 'UnderwaterChart'; % Name of the render
+hints.recipeName = 'UnderwaterChart-All'; % Name of the render
 hints.renderer = 'PBRT'; % Use PBRT as the renderer
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 
@@ -45,10 +44,10 @@ hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
 
 % Helper function used to move scene objects and camera around
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @mexximpRemodeller;
 
 % Helper function used to control PBRT parameters (e.g. light spectra, reflectance spectra, underwater parameters)
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @PBRTRemodeller;
 
 % Don't copy a new mesh file for every scene (TODO: Is this what this does?)
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
@@ -89,7 +88,7 @@ resourceFolder = rtbWorkingFolder('folderName','resources',...
 % the range of the two walls. The height of the box varies with water
 % depth.
 
-parentSceneFile = fullfile(uwSimulationRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae');
+parentSceneFile = fullfile(parentPath,'Scenes','underwaterRealisticBlackWalls.dae');
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
     'imagemagicImage','hblasins/imagemagic-docker',...
@@ -117,51 +116,76 @@ end
 
 %% Write conditions and generate scene files
 
+% Rendering parameters
+pixelSamples = 32;
+volumeStepSize = 50;
+cameraDistance = 1000; % mm
+
 % --- WATER PARAMETERS ---
 
-waterDepth = [0:20]*10^3; % mm
+depth = linspace(1,20,2)*10^3; % mm
+chlorophyll = logspace(-2,0,2);
+dom = logspace(-2,0,2);
 
-nConditions = length(waterDepth); % Number of images of varying parameters to render
+smallParticleConc = 0.0;
+largeParticleConc = 0.0;
 
-pixelSamples = ones(1,nConditions).*32;
-volumeStepSize = ones(1,nConditions).*50;
-cameraDistance = ones(1,nConditions).*1000; % mm
+nConditions = length(depth)*length(chlorophyll)*length(dom)...
+    *length(smallParticleConc)*length(largeParticleConc); % Number of images of varying parameters to render
 
-chlorophyll = ones(1,nConditions).*0.0;
-dom = ones(1,nConditions).*0.0;
-smallParticleConc = ones(1,nConditions).*0.0;
-largeParticleConc = ones(1,nConditions).*0.0;
+chlorophyllConc = zeros(nConditions,1);
+domConc = zeros(nConditions,1);
+spConc = zeros(nConditions,1);
+lpConc = zeros(nConditions,1);
 
+waterDepth = cell(nConditions,1);
 absorptionFiles = cell(nConditions,1);
 scatteringFiles = cell(nConditions,1);
 phaseFiles = cell(nConditions,1);
 
-assert(nConditions == length(waterDepth));
 
-for i = 1:nConditions
-    
-    % Using the parameters defined above, create curves for absorption,
-    % scattering and phase. These are saved as text files in the resource
-    % folder and will be read in by the underwater renderer in PBRT.
-    
-    % Create absorption curve
-    [sig_a, waves] = createAbsorptionCurve(chlorophyll(i),dom(i));
-    absorptionFileName = sprintf('abs_%i.spd',i);
-    rtbWriteSpectrumFile(waves, sig_a, fullfile(resourceFolder, absorptionFileName));
-    
-    % Create scattering curve and phase function
-    [phase, sig_s, waves] = calculateScattering(smallParticleConc(i),largeParticleConc(i),'mode','default');
-    scatteringFileName = sprintf('scat_%i.spd',i);
-    rtbWriteSpectrumFile(waves,sig_s,fullfile(resourceFolder,scatteringFileName));
-    phaseFileName = sprintf('phase_%i.txt',i);
-    WritePhaseFile(waves,phase,fullfile(resourceFolder,phaseFileName));
-    
-    % For every condition, store the corresponding absorption, scattering,
-    % and phase filename.
-    absorptionFiles{i} = absorptionFileName;
-    scatteringFiles{i} = scatteringFileName;
-    phaseFiles{i} = phaseFileName;
-    
+i = 1;
+for wd=1:length(depth)
+    for chl=1:length(chlorophyll)
+        for dm=1:length(dom)
+            for sp=1:length(smallParticleConc)
+                for lp=1:length(largeParticleConc)
+                    
+                    % Using the parameters defined above, create curves for absorption,
+                    % scattering and phase. These are saved as text files in the resource
+                    % folder and will be read in by the underwater renderer in PBRT.
+                    
+                    % Create absorption curve
+                    [sig_a, waves] = createAbsorptionCurve(chlorophyll(chl),dom(dm));
+                    absorptionFileName = sprintf('abs_%i.spd',i);
+                    rtbWriteSpectrumFile(waves, sig_a, fullfile(resourceFolder, absorptionFileName));
+                    
+                    % Create scattering curve and phase function
+                    [phase, sig_s, waves] = calculateScattering(smallParticleConc(sp),largeParticleConc(lp),'mode','default');
+                    scatteringFileName = sprintf('scat_%i.spd',i);
+                    rtbWriteSpectrumFile(waves,sig_s,fullfile(resourceFolder,scatteringFileName));
+                    phaseFileName = sprintf('phase_%i.txt',i);
+                    WritePhaseFile(waves,phase,fullfile(resourceFolder,phaseFileName));
+                    
+                    % For every condition, store the corresponding absorption, scattering,
+                    % and phase filename.
+                    absorptionFiles{i} = absorptionFileName;
+                    scatteringFiles{i} = scatteringFileName;
+                    phaseFiles{i} = phaseFileName;
+                    
+                    % Store the parameters for every condition.
+                    waterDepth{i} = depth(wd);
+                    
+                    chlorophyllConc(i) = chlorophyll(chl);
+                    domConc(i) = dom(dm);
+                    spConc(i) = smallParticleConc(sp);
+                    lpConc(i) = largeParticleConc(lp);
+                    
+                    i = i+1;
+                end
+            end
+        end
+    end
 end
 
 %% Create the conditions file
@@ -173,10 +197,10 @@ names = {'pixelSamples','cameraDistance','waterDepth','volumeStepSize', ...
     'absorptionFiles','scatteringFiles','phaseFiles'};
 
 values = cell(nConditions, numel(names));
-values(:,1) = num2cell(pixelSamples,1);
-values(:,2) = num2cell(cameraDistance,1);
-values(:,3) = num2cell(waterDepth,1);
-values(:,4) = num2cell(volumeStepSize,1);
+values(:,1) = num2cell(ones(1,nConditions).*pixelSamples,1);
+values(:,2) = num2cell(ones(1,nConditions).*cameraDistance,1);
+values(:,3) = waterDepth;
+values(:,4) = num2cell(ones(1,nConditions).*volumeStepSize,1);
 values(:,5) = absorptionFiles;
 values(:,6) = scatteringFiles;
 values(:,7) = phaseFiles;
@@ -210,12 +234,12 @@ for i = 1:nConditions
     
     oiName = sprintf('%s_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f', ...
         hints.recipeName, ...
-        cameraDistance(i)/10^3, ...
-        waterDepth(i)/10^3, ...
-        chlorophyll(i), ...
-        dom(i), ...
-        smallParticleConc(i), ...
-        largeParticleConc(i));
+        cameraDistance/10^3, ...
+        waterDepth{i}/10^3, ...
+        chlorophyllConc(i), ...
+        domConc(i), ...
+        spConc(i), ...
+        lpConc(i));
     
     % Create an oi
     oi = oiCreate;
@@ -225,18 +249,18 @@ for i = 1:nConditions
     
     vcAddAndSelectObject(oi);
     
-    % Save oi
-    fName = fullfile(renderingsFolder,strcat(oiName,'.mat'));
+    % Save oi and rendering parameters.
+    fName = fullfile(destPath,strcat(oiName,'.mat'));
     depth = waterDepth(i);
-    chlC = chlorophyll(i);
-    cdomC = dom(i);
-    smallPart = smallParticleConc(i);
-    largePart = largeParticleConc(i);
-    camDist = cameraDistance(i);
+    chlC = chlorophyllConc(i);
+    cdomC = domConc(i);
+    smallPart = spConc(i);
+    largePart = lpConc(i);
+    camDist = cameraDistance;
     
-    save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist'); 
-        
-    imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
+    save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist');
+    
+    imwrite(oiGet(oi,'rgb'),fullfile(destPath,strcat(oiName,'.png')));
     
 end
 

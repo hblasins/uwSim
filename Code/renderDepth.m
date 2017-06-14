@@ -1,13 +1,33 @@
-%% Render underwater chart
+%% Render underwater chart with varying depth.
 
-% Render a simulated macbeth chart underwater to show it's 3D nature. 
+% This script renders 5 images at different depths.
+
+% ----
+% From renderUnderwaterChart.m
+
+% Render a simulated macbeth chart underwater under specific water
+% parameters.
+
+% Water parameters include:
+
+% 1. waterDepth = Depth of chart underwater.
+% 2. chlorophyll = Chlorophyll concentration in mg*m^-3
+% 3. dom = Dissolved organic matter concentration in m^-1
+% 4. largeParticleConc = Large particles concentration in ppm
+% 5. smallParticleConc = Small particles concenrtation in ppm
+% 6. cameraDistance = Distance between camera and chart in mm
+
+% After rendering, the script saves an MAT file containing underwater
+% parameters and an oi structure (for iset). This MAT file can then be
+% processed through sensor and ISP and analyzed using
+% "processUnderwaterChart.m."
 
 % Trisha Lian
 
 %% Initialize
 
-clear; 
-close all; 
+clear;
+close all;
 clc;
 
 ieInit;
@@ -25,22 +45,51 @@ hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
 
 % Helper function used to move scene objects and camera around
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller_Staggered3D;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller;
 
 % Helper function used to control PBRT parameters (e.g. light spectra, reflectance spectra, underwater parameters)
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller_Staggered3D;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller;
 
 % Don't copy a new mesh file for every scene (TODO: Is this what this does?)
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
 
-% Specify where resource files such as spectra or textures will be stored. 
+% Specify where resource files such as spectra or textures will be stored.
 resourceFolder = rtbWorkingFolder('folderName','resources',...
-                                  'rendererSpecific',false,...
-                                  'hints',hints);
-                              
-%% Load scene 
+    'rendererSpecific',false,...
+    'hints',hints);
 
-parentSceneFile = fullfile(uwSimulationRootPath,'..','Scenes','underwater3DStaggered.dae'); 
+%% Load scene
+
+% Import the scene file. In this case it is a Collada file exported from
+% Blender (underwaterRealisticFlat.blend).
+
+% Each cube on the chart is 24x24 mm. The scene is lit by a point source
+% (flash) that is by default, 200 mm next to the camera center and moves
+% with the camera. There is also a distant, directional light source above
+% the water (see PBRT's "distant" light source). The distant light is
+% angled about 5 degrees from the normal of the ground plane, facing the
+% chart. It is offset in the x-direction.
+
+% There are two 2x2 meter walls in the scene. One is 500 mm behind the
+% chart and the second is 1 m behind the origin. These two walls sandwich
+% the camera and chart in order to prevent the distant directional
+% illumination from entering from the sides of the water volume.
+
+%   ||                                                              ||
+%   ||                                                              ||
+%   || <-- 0.5 m --> CAMERA <------ 5 m ------> CHART <-- 0.5 m --> ||
+%   ||                   ---------->                                ||
+%   ||                        Camera moves this way                 ||
+% Black Wall                                                    Black wall
+
+% To visualize the scene, you can try opening the Blender file. (Note: The
+% spotlight in the Blender file is converted into a distant light in
+% underwaterPBRTRemodeller.m) The water volume is a box defined by the
+% points p0 and p1 indicated in underwaterPBRTRemodeller.m - they extend
+% the range of the two walls. The height of the box varies with water
+% depth.
+
+parentSceneFile = fullfile(uwSimRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae');
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
     'imagemagicImage','hblasins/imagemagic-docker',...
@@ -57,52 +106,37 @@ scene = mexximpCentralizeCamera(scene);
 % Sunlight (aka distant light)
 fName = fullfile(rtbRoot,'RenderData','D65.spd');
 [wls,spd] = rtbReadSpectrum(fName);
-%spd = spd.*10^10; % Add a scale factor.
-rtbWriteSpectrumFile(wls, spd, fullfile(resourceFolder, 'DistantLight.spd')); 
-        
+spd = spd.*10^10; % Add a scale factor.
+rtbWriteSpectrumFile(wls, spd, fullfile(resourceFolder, 'DistantLight.spd'));
+
 % Macbeth cube reflectances
 for i = 1:24
     macbethPath = fullfile(rtbRoot(),'RenderData','Macbeth-ColorChecker',sprintf('mccBabel-%i.spd',i));
-    copyfile(macbethPath, rtbWorkingFolder('hints', hints)); 
+    copyfile(macbethPath, rtbWorkingFolder('hints', hints));
 end
 
 %% Write conditions and generate scene files
 
 % --- WATER PARAMETERS ---
 
-nConditions = 50; % Number of images of varying parameters to render
+waterDepth = [0:1:20]*10^3; % mm
 
-% This parameters is special to this staggered3D scene. We want to show the
-% 3D nature of the scene, so we move the camera in an arc while keeping it
-% pointed at the chart. 
-% The chart is centered at (0,5000,0):m
-r = 2000;
-xc = 0; yc = 5000;
-theta = linspace(-30,-150,nConditions);
-xpoints = r*cosd(theta) + xc;
-ypoints = r*sind(theta) + yc;
+nConditions = length(waterDepth); % Number of images of varying parameters to render
 
-%{
-figure(1); clf;
-scatter(xpoints,ypoints); axis image; 
-axis([-6000 6000 -1000 6000]); 
-hold on; scatter(0,5000,'rx');
-%}
-
-cameraPosition = [xpoints; ypoints; zeros(1,nConditions)]; % mm
-
-waterDepth = ones(1,nConditions).*6*10^3; % mm
 pixelSamples = ones(1,nConditions).*32;
 volumeStepSize = ones(1,nConditions).*50;
+cameraDistance = ones(1,nConditions).*1000; % mm
 
 chlorophyll = ones(1,nConditions).*0.0;
-dom = ones(1,nConditions).*0.0; 
-smallParticleConc = ones(1,nConditions).*0.01;
-largeParticleConc = ones(1,nConditions).*0.01;
+dom = ones(1,nConditions).*0.0;
+smallParticleConc = ones(1,nConditions).*0.0;
+largeParticleConc = ones(1,nConditions).*0.0;
 
 absorptionFiles = cell(nConditions,1);
 scatteringFiles = cell(nConditions,1);
 phaseFiles = cell(nConditions,1);
+
+assert(nConditions == length(waterDepth));
 
 for i = 1:nConditions
     
@@ -123,7 +157,7 @@ for i = 1:nConditions
     WritePhaseFile(waves,phase,fullfile(resourceFolder,phaseFileName));
     
     % For every condition, store the corresponding absorption, scattering,
-    % and phase filename. 
+    % and phase filename.
     absorptionFiles{i} = absorptionFileName;
     scatteringFiles{i} = scatteringFileName;
     phaseFiles{i} = phaseFileName;
@@ -134,20 +168,20 @@ end
 
 % Rearrange all the parameters into a large cell matrix, where each row
 % records the parameters for each condition. The cell matrix is passed to
-% rtbWriteConditionsFile, which converts it into a text file. 
-names = {'pixelSamples','cameraPosition','waterDepth','volumeStepSize', ...
+% rtbWriteConditionsFile, which converts it into a text file.
+names = {'pixelSamples','cameraDistance','waterDepth','volumeStepSize', ...
     'absorptionFiles','scatteringFiles','phaseFiles'};
 
 values = cell(nConditions, numel(names));
 values(:,1) = num2cell(pixelSamples,1);
-values(:,2) = num2cell(cameraPosition,1);
+values(:,2) = num2cell(cameraDistance,1);
 values(:,3) = num2cell(waterDepth,1);
 values(:,4) = num2cell(volumeStepSize,1);
 values(:,5) = absorptionFiles;
 values(:,6) = scatteringFiles;
 values(:,7) = phaseFiles;
 
-% Write the parameters in a conditions file. 
+% Write the parameters in a conditions file.
 conditionsFile = 'UnderwaterChartConditions.txt';
 conditionsPath = fullfile(resourceFolder, conditionsFile);
 rtbWriteConditionsFile(conditionsPath, names, values);
@@ -157,7 +191,7 @@ rtbWriteConditionsFile(conditionsPath, names, values);
 nativeSceneFiles = rtbMakeSceneFiles(scene,'hints', hints,'conditionsFile',conditionsPath);
 
 %% Render!
-% Render all .pbrt files. 
+% Render all .pbrt files.
 radianceDataFiles = rtbBatchRender(nativeSceneFiles, ...
     'hints', hints);
 
@@ -169,12 +203,19 @@ renderingsFolder = rtbWorkingFolder('folderName', 'renderings',...
 
 % For each rendered condition, we load in the radiance data (height x width
 % x wavelength) and create an optical image (oi) object for ISET. The water
-% parameters and the oi object is saved in a .mat file. 
+% parameters and the oi object is saved in a .mat file.
 for i = 1:nConditions
     
     radianceData = load(radianceDataFiles{i});
-   
-    oiName = sprintf('%i_%s_%i_%0.2f_%0.2f_%0.2f',i,hints.recipeName,waterDepth(i)/10^3,chlorophyll(i),dom(i),smallParticleConc(i));
+    
+    oiName = sprintf('%s_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f', ...
+        hints.recipeName, ...
+        cameraDistance(i)/10^3, ...
+        waterDepth(i)/10^3, ...
+        chlorophyll(i), ...
+        dom(i), ...
+        smallParticleConc(i), ...
+        largeParticleConc(i));
     
     % Create an oi
     oi = oiCreate;
@@ -191,13 +232,14 @@ for i = 1:nConditions
     cdomC = dom(i);
     smallPart = smallParticleConc(i);
     largePart = largeParticleConc(i);
+    camDist = cameraDistance(i);
     
-    save(fName,'oi','depth','chlC','cdomC','smallPart','largePart');
-    
-    imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
+    save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist'); 
         
+    imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
+    
 end
 
 oiWindow;
 
- 
+

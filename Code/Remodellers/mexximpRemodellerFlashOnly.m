@@ -1,4 +1,4 @@
-function [scene, mappings] = underwaterMexximpRemodeller(scene, mappings, names, conditionValues, conditionNumber)
+function [scene, mappings] = mexximpRemodellerFlashOnly(scene, mappings, names, conditionValues, conditionNumber)
 
 % This is an example of how to modify the incoming mexximp scene directly,
 % with a "remodeler" hook funtion.  It modifies the scene struct that will
