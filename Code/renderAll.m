@@ -123,9 +123,9 @@ cameraDistance = 1000; % mm
 
 % --- WATER PARAMETERS ---
 
-depth = linspace(1,20,2)*10^3; % mm
-chlorophyll = logspace(-2,0,2);
-dom = logspace(-2,0,2);
+depth = linspace(1,20,10)*10^3; % mm
+chlorophyll = logspace(-2,1,5);
+dom = logspace(-2,1,5);
 
 smallParticleConc = 0.0;
 largeParticleConc = 0.0;

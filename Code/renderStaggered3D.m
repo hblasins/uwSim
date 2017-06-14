@@ -22,7 +22,7 @@ if ~exist(destPath,'dir'), mkdir(destPath); end
 hints.imageWidth = 320;
 hints.imageHeight = 240;
 
-hints.recipeName = 'UnderwaterChart-Staggered3D';
+hints.recipeName = 'uwSim-Staggered3D';
 hints.renderer = 'PBRT'; % Use PBRT as the renderer
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 
@@ -76,7 +76,7 @@ end
 
 % --- WATER PARAMETERS ---
 
-nConditions = 10; % Number of images of varying parameters to render
+nConditions = 100; % Number of images of varying parameters to render
 
 % This parameters is special to this staggered3D scene. We want to show the
 % 3D nature of the scene, so we move the camera in an arc while keeping it
@@ -84,7 +84,7 @@ nConditions = 10; % Number of images of varying parameters to render
 % The chart is centered at (0,5000,0):m
 r = 2000;
 xc = 0; yc = 5000;
-theta = linspace(0,-150,nConditions);
+theta = linspace(-90,-150,nConditions);
 xpoints = r*cosd(theta) + xc;
 ypoints = r*sind(theta) + yc;
 
