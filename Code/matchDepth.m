@@ -66,7 +66,6 @@ for i = 1:nFiles
 end
 
 %% For every real image, match with the simulated values
-
 nReal = size(measuredRGB,2);
 nSim = size(simulatedRGB,2);
 
