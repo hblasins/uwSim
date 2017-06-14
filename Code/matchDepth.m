@@ -1,138 +1,93 @@
 % Matches real image with simulated images at different depths.
 
-%% Initialize
-clear; close all;
+clear; 
+close all;
 ieInit;
-%% Load  all the simulated files
 
-renderingsFolder = '/Users/trishalian/GitRepos/render_toolbox/UnderwaterChart/renderings/PBRT';
+wave = 400:10:700;
+[codePath, parentPath] = uwSimRootPath();
+
+rtb4Folder = getpref('RenderToolbox4','workingFolder');
+renderingsFolder  = fullfile(rtb4Folder,'UnderwaterChart','renderings','PBRT');
+imagesFolder = fullfile(parentPath,'Images','Underwater','02');
 
 depth_m = 0:20; % m
+
+%% Create a Canon G7X camera model
+fName = fullfile(parentPath,'Parameters','CanonG7X');
+transmissivities = ieReadColorFilter(wave,fName);
+
+sensor = sensorCreate('bayer (gbrg)');
+sensor = sensorSet(sensor,'filter transmissivities',transmissivities);
+sensor = sensorSet(sensor,'name','Canon G7X');
+sensor = sensorSet(sensor,'noise flag',0);
+
+%% Load simulated images
 
 simulatedRGB = cell(1,length(depth_m));
 
 for d = 1:length(depth_m)
     oiFilePath = fullfile(renderingsFolder,sprintf('UnderwaterChart_1.00_%0.2f_0.00_0.00_0.00_0.00.mat',depth_m(d)));
-    [rgbImageSimulated, avgMacbeth] = processSimulatedChart(oiFilePath);
+    data = load(oiFilePath);
+    [rgbImageSimulated, avgMacbeth] = simulateCamera(data.oi,sensor);
     simulatedRGB{d} = avgMacbeth;
 end
 
-% Save
-comment = 'Depth is third dimension in rgbSimulated, i.e. rgbSimulated(:,:,1) is the simulated image at depth = 0 m.';
-save('simulatedRGB_Depth.mat','simulatedRGB','depth_m','comment');
 
+%% Load real images
 
-%% Load all real images
+fNames = getFilenames(imagesFolder, 'CR2$');
+nFiles = length(fNames);
 
-realImageFolder = '/Users/trishalian/Dropbox/Images';
+measuredRGB = cell(1,nFiles);
+imageNames = cell(1,nFiles);
+meta = cell(1,nFiles);
 
-% See function below
-fn = getfn(realImageFolder, 'CR2$');
-
-measuredRGB = cell(1,length(fn));
-imageNames = cell(1,length(fn));
-
-for i = 1:length(fn)
+for i = 1:nFiles
     
-    rawCameraFilePath = fn{i};
+    rawCameraFilePath = fNames{i};
     [~, imageNames{i}, ext] = fileparts(rawCameraFilePath);
-    [sensorReal,cp_real,img,meta] = readCameraImage(rawCameraFilePath);
+    [realSensor, cp, ~, meta{i}] = readCameraImage(rawCameraFilePath, sensor);
     
-    % --------------------------------
-    % --- CHANGE THIS FOR FILTERS ----
-    wave = 400:10:700;
-    fName = fullfile(uwSimulationRootPath,'Canon1DMarkIII');
-    camera = ieReadColorFilter(wave,fName);
-    sensorReal = sensorSet(sensorReal,'filter transmissivities',camera);
-    % --------------------------------
-    % --------------------------------
-    
-    vcAddObject(sensorReal);
+    vcAddObject(realSensor);
     sensorWindow();
     
-    ipReal = ipCreate;
-    ipReal = ipSet(ipReal,'name','Canon');
-    ipReal = ipCompute(ipReal,sensorReal);
+    realIp = ipCreate;
+    realIp = ipSet(realIp,'name','Canon G7X');
+    realIp = ipCompute(realIp,realSensor);
     
-    vcAddObject(ipReal);
+    vcAddObject(realIp);
     ipWindow();
     
-    [data, mLocs, psize, cp_real] = ...
-        macbethSelect(sensorReal,1,1,cp_real);
-    avg = cellfun(@nanmean,data,'UniformOutput',false);
+    data = macbethSelect(realSensor,1,1,cp);
+    avg = cell2mat(cellfun(@nanmean,data,'UniformOutput',false)');
     
-    % Rearrange into macbeth chart for easier viewing and processing
-    rgbAverageMeasured = zeros(4,6,3);
-    for yy = 1:4
-        for xx = 1:6
-            id = (xx-1)*4 + (4-yy)+1;
-            currRGB = avg{id};
-            currRGB = reshape(currRGB,[1 1 3]);
-            rgbAverageMeasured(yy,xx,:) = currRGB;
-        end
-    end
-    
-    measuredRGB{i} = rgbAverageMeasured;
+    measuredRGB{i} = avg;
 end
-
-% Save
-comment = 'Third dimension matches the list of filenames.';
-save('realRGB_Depth.mat','measuredRGB','imageNames','comment');
 
 %% For every real image, match with the simulated values
-load('simulatedRGB_Depth.mat');
-load('realRGB_Depth.mat');
 
-% matches = cell{}
-% for m = 1:size(measuredRGB,3)
-%     
-%     RMS = zeros(size(simulatedRGB,3),1);
-%     
-%     for s = 1:size(simulatedRGB,3)    
-%         RMS(s) = rms(measuredRGB{m} - simulatedRGB{s});
-%     end
-%     
-%     minIndex = min(RMS);
-%     
-%     
-% end
+nReal = size(measuredRGB,2);
+nSim = size(simulatedRGB,2);
 
-%%
-function filenames = getfn(mydir, pattern)
-%GETFN Get filenames in directory and subdirectories.
-%
-%   FILENAMES = GETFN(MYDIR, PATTERN)
-%
-% Example: Get all files that end with 'txt' in the current directory and
-%          all subdirectories 
-%
-%    fn = getfn(pwd, 'txt$')
-%
-%   Thorsten.Hansen@psychol.uni-giessen.de  2016-07-06
-if nargin == 0
-  mydir = pwd;
+for m = 1:size(measuredRGB,2)
+
+     RMS = zeros(nSim,1);
+
+     for s = 1:nSim
+         RMS(s) = rms(rms(measuredRGB{m} - simulatedRGB{s}));
+     end
+
+     [~, minIndex] = min(RMS);
+     
+     figure;
+     hold on; grid on; box on;
+     plot(measuredRGB{m},simulatedRGB{minIndex},'o');
+     xlabel('Measured');
+     ylabel('Simulated');
+     title(imageNames{m},'interpreter','none');
+
+     fprintf('%s: depth: %s (measured) %.2f (estimated)\n',imageNames{m},...
+         meta{m}.depth.Text,depth_m(minIndex));
 end
-% computes common variable FILENAMES: get all files in MYDIR and
-% recursively traverses subdirectories to get all files in these
-% subdirectories: 
-getfnrec(mydir) 
-% if PATTERN is given, select only those files that match the PATTERN:                 
-if nargin > 1 
-  idx = ~cellfun(@isempty, regexp(filenames, pattern));
-  filenames = filenames(idx);
-end
-    function getfnrec(mydir)
-    % nested function, works on common variable FILENAMES
-    % recursively traverses subdirectories and returns filenames
-    % with path relative to the top level directory
-      d = dir(mydir);
-      filenames = {d(~[d.isdir]).name};
-      filenames = strcat(mydir, filesep, filenames); 
-      dirnames = {d([d.isdir]).name};
-      dirnames = setdiff(dirnames, {'.', '..'});  
-      for i = 1:numel(dirnames)
-        fulldirname = [mydir filesep dirnames{i}];
-        filenames = [filenames, getfn(fulldirname)];
-      end  
-    end % nested function
-end
+
