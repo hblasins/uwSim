@@ -1,4 +1,4 @@
-# Underwater Camera Simulation
+# Underwater Image Systems Simulation
 
 Digital cameras are ubiquitus and are slowly finding their way in niche application areas, such
 as imaging below the surface of the sea. Underwater imaging is becoming popular among
