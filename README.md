@@ -53,7 +53,7 @@ images, 3D models) from [Stanford Digital Repository].
 
 * **Code** contains all the Matlab source code.
   * **Code/Utilities** a number of 'unrelated' functions we use thourghout the project (for example XML file parsing)
-  * **Code/Remodellers** functions used by RenderToolbox4 to change the scene geometry or other properties. Please refer to [RenderToolbox4 docummentation] (https://github.com/RenderToolbox/RenderToolbox4/wiki/Flythrough) for details.
+  * **Code/Remodellers** functions used by RenderToolbox4 to change the scene geometry or other properties. Please refer to [RenderToolbox4 docummentation](https://github.com/RenderToolbox/RenderToolbox4/wiki/Flythrough) for details.
   * **Code/VideosAndFigures** functions to generate sample images, figures and videos used in presentations and publications.
 * **Figures** images and movies that were generated from the simulation results. For example 
 the two figures on top of this page.
