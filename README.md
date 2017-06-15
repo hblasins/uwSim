@@ -73,6 +73,6 @@ To get you started please have a look (and run) at the `Code/renderUnderwaterCha
 * small particle concentration
 * large particle concentration
 
-Many other scripts in the `Code` directory are a variation on the `renderUnderwaterChart.m' where we simply vary or co-vary different parameters and produce a large number of output images.
+Many other scripts in the `Code` directory are a variation on the `renderUnderwaterChart.m` where we simply vary or co-vary different parameters and produce a large number of output images.
 
 
