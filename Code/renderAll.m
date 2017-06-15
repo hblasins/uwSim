@@ -36,7 +36,7 @@ if ~exist(destPath,'dir'), mkdir(destPath); end
 hints.imageWidth = 320;
 hints.imageHeight = 240;
 
-hints.recipeName = 'UnderwaterChart-All'; % Name of the render
+hints.recipeName = 'uwSim-All'; % Name of the render
 hints.renderer = 'PBRT'; % Use PBRT as the renderer
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 
@@ -124,17 +124,17 @@ cameraDistance = 1000; % mm
 % --- WATER PARAMETERS ---
 
 depth = linspace(1,20,10)*10^3; % mm
-chlorophyll = logspace(-2,1,5);
-dom = logspace(-2,1,5);
+chlorophyll = logspace(-2,1,10);
+cdom = logspace(-2,1,9);
 
 smallParticleConc = 0.0;
 largeParticleConc = 0.0;
 
-nConditions = length(depth)*length(chlorophyll)*length(dom)...
+nConditions = length(depth)*length(chlorophyll)*length(cdom)...
     *length(smallParticleConc)*length(largeParticleConc); % Number of images of varying parameters to render
 
 chlorophyllConc = zeros(nConditions,1);
-domConc = zeros(nConditions,1);
+cdomConc = zeros(nConditions,1);
 spConc = zeros(nConditions,1);
 lpConc = zeros(nConditions,1);
 
@@ -147,7 +147,7 @@ phaseFiles = cell(nConditions,1);
 i = 1;
 for wd=1:length(depth)
     for chl=1:length(chlorophyll)
-        for dm=1:length(dom)
+        for dm=1:length(cdom)
             for sp=1:length(smallParticleConc)
                 for lp=1:length(largeParticleConc)
                     
@@ -156,7 +156,7 @@ for wd=1:length(depth)
                     % folder and will be read in by the underwater renderer in PBRT.
                     
                     % Create absorption curve
-                    [sig_a, waves] = createAbsorptionCurve(chlorophyll(chl),dom(dm));
+                    [sig_a, waves] = createAbsorptionCurve(chlorophyll(chl),cdom(dm));
                     absorptionFileName = sprintf('abs_%i.spd',i);
                     rtbWriteSpectrumFile(waves, sig_a, fullfile(resourceFolder, absorptionFileName));
                     
@@ -177,7 +177,7 @@ for wd=1:length(depth)
                     waterDepth{i} = depth(wd);
                     
                     chlorophyllConc(i) = chlorophyll(chl);
-                    domConc(i) = dom(dm);
+                    cdomConc(i) = cdom(dm);
                     spConc(i) = smallParticleConc(sp);
                     lpConc(i) = largeParticleConc(lp);
                     
@@ -237,7 +237,7 @@ for i = 1:nConditions
         cameraDistance/10^3, ...
         waterDepth{i}/10^3, ...
         chlorophyllConc(i), ...
-        domConc(i), ...
+        cdomConc(i), ...
         spConc(i), ...
         lpConc(i));
     
@@ -253,7 +253,7 @@ for i = 1:nConditions
     fName = fullfile(destPath,strcat(oiName,'.mat'));
     depth = waterDepth(i);
     chlC = chlorophyllConc(i);
-    cdomC = domConc(i);
+    cdomC = cdomConc(i);
     smallPart = spConc(i);
     largePart = lpConc(i);
     camDist = cameraDistance;

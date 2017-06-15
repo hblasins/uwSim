@@ -2,7 +2,7 @@
 
 % Render a simulated macbeth chart underwater to show it's 3D nature. 
 
-% Trisha Lian
+% Copyright, Trisha Lian, Henryk Blasinski 2017
 
 %% Initialize
 
@@ -102,7 +102,7 @@ pixelSamples = ones(1,nConditions).*32;
 volumeStepSize = ones(1,nConditions).*50;
 
 chlorophyll = ones(1,nConditions).*0.0;
-dom = ones(1,nConditions).*0.0; 
+cdom = ones(1,nConditions).*0.0; 
 smallParticleConc = ones(1,nConditions).*0.01;
 largeParticleConc = ones(1,nConditions).*0.01;
 
@@ -117,7 +117,7 @@ for i = 1:nConditions
     % folder and will be read in by the underwater renderer in PBRT.
     
     % Create absorption curve
-    [sig_a, waves] = createAbsorptionCurve(chlorophyll(i),dom(i));
+    [sig_a, waves] = createAbsorptionCurve(chlorophyll(i),cdom(i));
     absorptionFileName = sprintf('abs_%i.spd',i);
     rtbWriteSpectrumFile(waves, sig_a, fullfile(resourceFolder, absorptionFileName));
     
@@ -180,7 +180,9 @@ for i = 1:nConditions
     
     radianceData = load(radianceDataFiles{i});
    
-    oiName = sprintf('%i_%s_%i_%0.2f_%0.2f_%0.2f',i,hints.recipeName,waterDepth(i)/10^3,chlorophyll(i),dom(i),smallParticleConc(i));
+    oiName = sprintf('%i_%s_%i_%0.2f_%0.2f_%0.2f_%0.2f',i,hints.recipeName,...
+        waterDepth(i)/10^3,chlorophyll(i),cdom(i),...
+        smallParticleConc(i),largeParticleConc(i));
     
     % Create an oi
     oi = oiCreate;
@@ -194,7 +196,7 @@ for i = 1:nConditions
     fName = fullfile(destPath,strcat(oiName,'.mat'));
     depth = waterDepth(i);
     chlC = chlorophyll(i);
-    cdomC = dom(i);
+    cdomC = cdom(i);
     smallPart = smallParticleConc(i);
     largePart = largeParticleConc(i);
     

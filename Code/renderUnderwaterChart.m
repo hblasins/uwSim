@@ -17,7 +17,7 @@
 % processed through sensor and ISP and analyzed using
 % "processUnderwaterChart.m."
 
-% Trisha Lian
+% Copyright, Trisha Lian, Henryk Blasinski 2017
 
 %% Initialize
 
@@ -26,6 +26,8 @@ close all;
 clc;
 
 ieInit;
+
+[codePath, parentPath] = uwSimRootPath();
 
 %% Choose rendering options
 
@@ -40,12 +42,12 @@ hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
 
 % Helper function used to move scene objects and camera around
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @mexximpRemodeller;
 
 % Helper function used to control PBRT parameters (e.g. light spectra, reflectance spectra, underwater parameters)
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @PBRTRemodeller;
 
-% Don't copy a new mesh file for every scene (TODO: Is this what this does?)
+% Don't write a new mesh file for every submesh. 
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
 
 % Specify where resource files such as spectra or textures will be stored. 
@@ -84,7 +86,7 @@ resourceFolder = rtbWorkingFolder('folderName','resources',...
 % the range of the two walls. The height of the box varies with water
 % depth.
 
-parentSceneFile = fullfile(uwSimRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae'); 
+parentSceneFile = fullfile(parentPath,'Scenes','underwaterRealisticBlackWalls.dae'); 
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
     'imagemagicImage','hblasins/imagemagic-docker',...
@@ -112,16 +114,31 @@ end
 
 %% Write conditions and generate scene files
 
-% --- WATER PARAMETERS ---
-
 nConditions = 1; % Number of images of varying parameters to render
+
+% --- CAMERA PARAMETERS ---
+% Note these are repeated in the PBRTremodeller function,
+% Here we use the values only to compute the scene fov.
+% Given that we know that we are looking at a Macbeth chart.
+cameraDistance = ones(1,nConditions).*1000; % mm
+
+patchSize = 24;
+chartHeight = 4*patchSize;
+chartWidth = 6*patchSize;
+
+filmHalfDiag = 10;
+targetHalfDiag = 1.2*sqrt(chartHeight^2+chartWidth^2)/2;
+filmDistance = filmHalfDiag*cameraDistance(1)/targetHalfDiag;
+
+fov = atan2d(filmHalfDiag,filmDistance);
+
+% --- WATER PARAMETERS ---
 
 % If more than one condition, these should be vectors of size [1 x
 % nCondition] where each index is the paraameter for a single condition.
 waterDepth = ones(1,nConditions).*6*10^3; % mm
 pixelSamples = ones(1,nConditions).*32;
 volumeStepSize = ones(1,nConditions).*50;
-cameraDistance = ones(1,nConditions).*1000; % mm
 
 chlorophyll = ones(1,nConditions).*4.0;
 dom = ones(1,nConditions).*0.0; 
@@ -207,6 +224,7 @@ for i = 1:nConditions
     % Create an oi
     oi = oiCreate;
     oi = initDefaultSpectrum(oi);
+    oi = oiSet(oi,'fov',fov);
     oi = oiSet(oi,'photons',radianceData.multispectralImage*radianceData.radiometricScaleFactor);
     oi = oiSet(oi,'name',oiName);
     

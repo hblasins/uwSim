@@ -12,4 +12,6 @@ addpath(codePath);
 
 addpath(fullfile(codePath,'Utilities'));
 addpath(fullfile(codePath,'Remodellers'));
+addpath(fullfile(codePath,'VideosAndFigures'));
+
 addpath(fullfile(parentDir,'Parameters'));

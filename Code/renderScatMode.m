@@ -32,12 +32,17 @@ clc;
 
 ieInit;
 
+[codePath, parentPath] = uwSimRootPath();
+
+destPath = fullfile(parentPath,'Results','Scatter');
+if ~exist(destPath,'dir'), mkdir(destPath); end
+
 %% Choose rendering options
 
 hints.imageWidth = 320;
 hints.imageHeight = 240;
 
-hints.recipeName = 'UnderwaterChart'; % Name of the render
+hints.recipeName = 'uwSim-Scatter'; % Name of the render
 hints.renderer = 'PBRT'; % Use PBRT as the renderer
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 
@@ -45,10 +50,10 @@ hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
 
 % Helper function used to move scene objects and camera around
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller_flashOnly;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @mexximpRemodellerFlashOnly;
 
 % Helper function used to control PBRT parameters (e.g. light spectra, reflectance spectra, underwater parameters)
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller_flashOnly;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @PBRTRemodellerFlashOnly;
 
 % Don't copy a new mesh file for every scene (TODO: Is this what this does?)
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
@@ -89,7 +94,7 @@ resourceFolder = rtbWorkingFolder('folderName','resources',...
 % the range of the two walls. The height of the box varies with water
 % depth.
 
-parentSceneFile = fullfile(uwSimulationRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae');
+parentSceneFile = fullfile(parentPath,'Scenes','underwaterRealisticBlackWalls.dae');
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
     'imagemagicImage','hblasins/imagemagic-docker',...
@@ -129,7 +134,7 @@ nConditions = 4; % Number of images of varying parameters to render
 
 waterDepth = ones(1,nConditions).*1000; % mm
 pixelSamples = ones(1,nConditions).*32;
-volumeStepSize = ones(1,nConditions).*50;
+volumeStepSize = ones(1,nConditions).*5;
 cameraDistance = ones(1,nConditions).*2000; % mm
 
 chlorophyll = ones(1,nConditions).*0.0;
@@ -242,7 +247,7 @@ for i = 1:nConditions
     vcAddAndSelectObject(oi);
     
     % Save oi
-    fName = fullfile(renderingsFolder,strcat(oiName,'.mat'));
+    fName = fullfile(destPath,strcat(oiName,'.mat'));
     depth = waterDepth(i);
     chlC = chlorophyll(i);
     cdomC = dom(i);
@@ -253,10 +258,10 @@ for i = 1:nConditions
     
     save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist','scatMode','flashDistanceFromCamera','flashDistanceFromChart'); 
         
-    imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
+    imwrite(oiGet(oi,'rgb'),fullfile(destPath,strcat(oiName,'.png')));
      
     H = plotPhaseFunction(fullfile(resourceFolder,sprintf('phase_%i.txt',i)),550);
-    savefig(H,fullfile(renderingsFolder,sprintf('phase_%s.fig',scatteringMode{i})));
+    savefig(H,fullfile(destPath,sprintf('phase_%s.fig',scatteringMode{i})));
     
 end
 
