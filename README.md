@@ -44,6 +44,9 @@ A cross-platform Docker engine is required to run these.
 * [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
 
+We have successfully installed and run the simulator on OSX and Linux (Debian) systems. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows platforms (but we have heard of some successful installations).
+
+
 ## Data
 
 In order to reproduce the results from our publications please download the input data (underwater
