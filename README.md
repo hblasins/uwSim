@@ -1,5 +1,6 @@
 # Underwater Image Systems Simulation
 
+<p text-align="justify">
 Digital cameras are ubiquitus and are slowly finding their way in niche application areas, such
 as imaging below the surface of the sea. Underwater imaging is becoming popular among
 consumers (GoPro action cameras) as well as professionals (underwater exploration). 
@@ -11,14 +12,12 @@ to explore some of those limitations without the need for troublesome experiment
 This project provides a set of tools to realisticly simualte the appearance of underwater scenes
 in a variety of water conditions. Simulated images faciliate evaluation, and comparisons across 
 different underwater imaing systems and correction algorithms.
+</p>
 
 <p align="center"> 
 <img src="https://github.com/hblasins/uwSim/blob/master/Figures/scatter_default.png">
 <img src="https://github.com/hblasins/uwSim/blob/master/Figures/scatter_direct.png">
 </p>
-
-![Underwater Macbeth chart](https://github.com/hblasins/uwSim/blob/master/Figures/scatter_default.png)
-![Underwater Macbeth chart](https://github.com/hblasins/uwSim/blob/master/Figures/scatter_direct.png)
 
 
 If you use these tools please cite the following
