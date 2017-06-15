@@ -49,11 +49,6 @@ A cross-platform Docker engine is required to run these.
 In order to reproduce the results from our publications please download the input data (underwater
 images, 3D models) from [Stanford Digital Repository].
 
-## Installation
-
-Please clone the repository to your local drive. From MATLAB run `Code/install.m` function 
-to correctly set up MATLAB PATH in your environment. 
-
 ## Directory structure
 
 * **Code** contains all the Matlab source code
@@ -62,4 +57,22 @@ the two figures on top of this page.
 * **Parameters** contains calibration data for different cameras and light sources. For example
 the spectral responsivities of the Canon G7X used in the experiments.
 * **Scenes** 3D scene files used in simulations. We usually generate these scenes in [Blender](https://www.blender.org)
+
+## Installation
+
+Please clone the repository to your local drive. From MATLAB run `Code/install.m` function 
+to correctly set up MATLAB PATH in your environment. 
+
+## Getting started
+
+To get you started please have a look (and run) at the `Code/renderUnderwaterChart.m` script. This is a simple script that renders an image of a Macbeth chart submertged in water. You can specify a number of parameters that affect the final image appearance :
+* depth
+* camera to chart distance
+* chlorophyl concentraion
+* color dissolved organic matter (CDOM) concentraion
+* small particle concentration
+* large particle concentration
+
+Many other scripts in the `Code` directory are a variation on the `renderUnderwaterChart.m' where we simply vary or co-vary different parameters and produce a large number of output images.
+
 
