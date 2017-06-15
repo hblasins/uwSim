@@ -57,6 +57,9 @@ to correctly set up MATLAB PATH in your environment.
 ## Directory structure
 
 * **Code** contains all the Matlab source code
+* **Figures** images and movies that were generated from the simulation results. For example 
+the two figures on top of this page.
 * **Parameters** contains calibration data for different cameras and light sources. For example
 the spectral responsivities of the Canon G7X used in the experiments.
 * **Scenes** 3D scene files used in simulations. We usually generate these scenes in [Blender](https://www.blender.org)
+
