@@ -12,6 +12,11 @@ This project provides a set of tools to realisticly simualte the appearance of u
 in a variety of water conditions. Simulated images faciliate evaluation, and comparisons across 
 different underwater imaing systems and correction algorithms.
 
+<p align="center"> 
+<img src="https://github.com/hblasins/uwSim/blob/master/Figures/scatter_default.png">
+<img src="https://github.com/hblasins/uwSim/blob/master/Figures/scatter_direct.png">
+</p>
+
 ![Underwater Macbeth chart](https://github.com/hblasins/uwSim/blob/master/Figures/scatter_default.png)
 ![Underwater Macbeth chart](https://github.com/hblasins/uwSim/blob/master/Figures/scatter_direct.png)
 
