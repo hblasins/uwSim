@@ -50,7 +50,11 @@ We have successfully installed and run the simulator on OSX and Linux (Debian) s
 ## Data
 
 In order to reproduce the results from our publications please download the input data (underwater
-images, 3D models) from [Stanford Digital Repository].
+images, 3D models) from [Stanford Digital Repository](https://purl.stanford.edu/wp894vt1248).
+
+The Stanford Digital Repository contains a single, ~3GB `.zip` file. Once you extract it's contents you will see two directories, please move them to the github directory for this project. 
+* **Images** contains two sets of real images captured with a Canon G7X camera. The first set are underwater images of a Macbeth chart captured in a few locations in the West Indies. The second set are images of a white Spectralon target illuminated with monochromatic light. This set was used to derive the camera responsivity curves.
+* **Results** are outputs of some of the scripts we provide. You should be able to re-generate this data. We only provide this directory for your reference and so you can run the scripts that use the data in different analyses. 
 
 ## Directory structure
 
