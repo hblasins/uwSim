@@ -4,7 +4,7 @@ function [ sensor,  cp, img, meta] = readCameraImage( path, sensor )
 
 % Read raw sensor image
 cmd = sprintf('dcraw -v -r 1 1 1 1 -H 0 -o 0 -d -j -4 %s',path);
-system(cmd);
+[err, msg] = system(cmd);
 fName = fullfile(directory,sprintf('%s.pgm',file));
 img = double(imread(fName));
 img = img/max(img(:));

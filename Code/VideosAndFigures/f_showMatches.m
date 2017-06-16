@@ -1,10 +1,28 @@
+% This script takes the Macbeth chart RGB intensities extracted from the
+% captured and simulated data and finds the simulated water parameters that
+% explain best the RGB data catprued in the real world.
+%
+% Copyright, Henryk Blasinski 2017
+
 close all;
 clear all;
 clc;
 
-[codePath, parentPath] = uwSimRootPath();
+ieInit;
 
+[codePath, parentPath] = uwSimRootPath();
 resultFolder = fullfile(parentPath,'Results','Matching');
+
+%% Create a Canon G7X camera model
+wave = 400:10:700;
+
+fName = fullfile(parentPath,'Parameters','CanonG7X');
+transmissivities = ieReadColorFilter(wave,fName);
+
+sensor = sensorCreate('bayer (gbrg)');
+sensor = sensorSet(sensor,'filter transmissivities',transmissivities);
+sensor = sensorSet(sensor,'name','Canon G7X');
+sensor = sensorSet(sensor,'noise flag',0);
 
 %%
 
@@ -38,7 +56,6 @@ for m = 1:nReal
             subject to
                 a>=0
         cvx_end
-        
         
         error(s) = norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:));
     end
@@ -77,7 +94,7 @@ for m = 1:nReal
     if ~isempty(resultFolder)
         ip = ipCompute(ipCreate,realSensor);
         img = ipGet(ip,'sensor channels');
-        img = img/max(img(:));
+        img = img/(5*max(img(:)));
         fName = fullfile(resultFolder,sprintf('%s.png',imgName));
         imwrite(img,fName);
         
@@ -99,7 +116,9 @@ for m = 1:nReal
         save(fName,'measRGB','simRGB','chlC','depth','cdomC','metadata');
     end
     
-    % Sensitivity analysis
+    %% Sensitivity analysis
+    %  Plot how sensitive the error is as we vary different water
+    %  parameters.
     
     % Error vs depth
     figure;
@@ -153,6 +172,37 @@ for m = 1:nReal
     xlabel('Chlorophyll concentration');
     ylabel('Error');
     
+    
+    % Error volume
+    % Find parameters for which the error is less than 10%, and see where
+    % they are placed in teh 3D space.
+    
+    ids = find(error < min(error(:)*1.1));
+    
+    subDepth = depthV(ids);
+    subCdom = cdomV(ids);
+    subChl = chlV(ids);
+    
+    cmap = jet(length(subDepth(:)));
+    
+    figure;
+    hold on; grid on; box on;
+    
+    for i=1:length(subDepth(:))
+        plot3(subDepth(i)/1000,subCdom(i),subChl(i),'.','MarkerSize',20,'Color',cmap(i,:));
+    end
+    xlim([min(depthV(:)) max(depthV(:))]/1000);
+    ylim([min(cdomV(:)) max(cdomV(:))]);
+    zlim([min(chlV(:)) max(chlV(:))]);
+    
+    set(gca,'yscale','log');
+    set(gca,'zscale','log');
+    set(gca,'view',[-68 30]);
+    xlabel('Depth, m');
+    ylabel('CDOM conc, mg/m^3');
+    zlabel('chl conc, mg/m^3');
+    
+    title(sprintf('%s',imgName),'Interpreter','none');
 end
 
 

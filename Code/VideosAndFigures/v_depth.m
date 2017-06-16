@@ -1,7 +1,13 @@
-% Convert to video
+% Create videos to show how changes in depth and chlorophll concentration
+% influence the Macbeth chart appearance.
+%
+% Copyright, Trisha Lian, Henryk Blasinski 2017.
+
 close all;
 clear all;
 clc;
+
+ieInit;
 
 %% Depth
 
@@ -13,8 +19,8 @@ smallParticleConc = 0.0;
 largeParticleConc = 0.0;
 
 [~, parentPath] = uwSimRootPath();
-dataPath = fullfile(parentPath,'Results','All-Old');
-resultPath = fullfile(parentPath,'Results');
+dataPath = fullfile(parentPath,'Results','All');
+resultPath = fullfile(parentPath,'Figures');
 
 % Create video writer
 videoname = fullfile(resultPath,'depth');
@@ -23,7 +29,7 @@ open(vidObj);
 
 for i=1:length(depth)
     
-    fName = sprintf('underwaterChart-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.png', ...
+    fName = sprintf('uwSim-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.mat', ...
         cameraDistance, ...
         depth(i), ...
         chlorophyll, ...
@@ -33,12 +39,12 @@ for i=1:length(depth)
     
     fName = fullfile(dataPath,fName);
     
-    img = imread(fName);
+    data = load(fName);
+    img = oiGet(data.oi,'rgb image');
     
     fid = figure(1); clf;
     imshow(img,'Border','tight');
     text(15,20,sprintf('%2i m',round(depth(i))),'Color','red','Fontsize',20);
-    %     title(sprintf('x = %i mm',flashDistanceFromCamera(i)))
     
     % Write each frame to the file.
     for m=1:15 % write m frames - determines speed
@@ -50,19 +56,16 @@ end
 close(vidObj);
 
 
-%% Chlorophyl
+%% Chlorophyll
 
 cameraDistance = 1;
 depth = linspace(1,20,10); % mm
 depth = depth(5);
-chlorophyll = logspace(-2,0,5);
-cdom = 0.01;
+chlorophyll = logspace(-2,1,10);
+cdom = logspace(-2,1,9);
+cdom = cdom(1);
 smallParticleConc = 0.0;
 largeParticleConc = 0.0;
-
-[~, parentPath] = uwSimRootPath();
-dataPath = fullfile(parentPath,'Results','All');
-resultPath = fullfile(parentPath,'Results');
 
 % Create video writer
 videoname = fullfile(resultPath,'chlorophyll');
@@ -71,7 +74,7 @@ open(vidObj);
 
 for i=1:length(chlorophyll)
     
-    fName = sprintf('underwaterChart-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.png', ...
+    fName = sprintf('uwSim-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.mat', ...
         cameraDistance, ...
         depth, ...
         chlorophyll(i), ...
@@ -81,60 +84,12 @@ for i=1:length(chlorophyll)
     
     fName = fullfile(dataPath,fName);
     
-    img = imread(fName);
+    data = load(fName);
+    img = oiGet(data.oi,'rgb image');
     
     fid = figure(1); clf;
     imshow(img,'Border','tight');
-    %     title(sprintf('x = %i mm',flashDistanceFromCamera(i)))
-    
-    % Write each frame to the file.
-    for m=1:15 % write m frames - determines speed
-        writeVideo(vidObj,getframe(fid));
-    end
-    
-end
-
-close(vidObj);
-
-
-%% CDOM
-
-cameraDistance = 1;
-depth = linspace(1,20,10); % mm
-depth = depth(5);
-chlorophyll = logspace(-2,0,5);
-chlorophyll = chlorophyll(5);
-cdom = logspace(-2,0,5);
-
-smallParticleConc = 0.0;
-largeParticleConc = 0.0;
-
-[~, parentPath] = uwSimRootPath();
-dataPath = fullfile(parentPath,'Results','All');
-resultPath = fullfile(parentPath,'Results');
-
-% Create video writer
-videoname = fullfile(resultPath,'cdom');
-vidObj = VideoWriter(videoname,'MPEG-4'); %
-open(vidObj);
-
-for i=1:length(chlorophyll)
-    
-    fName = sprintf('underwaterChart-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.png', ...
-        cameraDistance, ...
-        depth, ...
-        chlorophyll, ...
-        cdom(i), ...
-        smallParticleConc, ...
-        largeParticleConc);
-    
-    fName = fullfile(dataPath,fName);
-    
-    img = imread(fName);
-    
-    fid = figure(1); clf;
-    imshow(img,'Border','tight');
-    %     title(sprintf('x = %i mm',flashDistanceFromCamera(i)))
+    text(15,20,sprintf('%.2f mg/m3',round(chlorophyll(i)*100)/100),'Color','red','Fontsize',20);
     
     % Write each frame to the file.
     for m=1:15 % write m frames - determines speed
