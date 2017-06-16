@@ -121,6 +121,16 @@ pixelSamples = 32;
 volumeStepSize = 50;
 cameraDistance = 1000; % mm
 
+patchSize = 24;
+chartHeight = 4*patchSize;
+chartWidth = 6*patchSize;
+
+filmHalfDiag = 10;
+targetHalfDiag = 1.2*sqrt(chartHeight^2+chartWidth^2)/2;
+filmDistance = filmHalfDiag*cameraDistance/targetHalfDiag;
+
+fov = atan2d(filmHalfDiag,filmDistance);
+
 % --- WATER PARAMETERS ---
 
 depth = linspace(1,20,10)*10^3; % mm
@@ -230,6 +240,8 @@ renderingsFolder = rtbWorkingFolder('folderName', 'renderings',...
 % parameters and the oi object is saved in a .mat file.
 for i = 1:nConditions
     
+    fprintf('%i\n',i);
+    
     radianceData = load(radianceDataFiles{i});
     
     oiName = sprintf('%s_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f', ...
@@ -244,10 +256,11 @@ for i = 1:nConditions
     % Create an oi
     oi = oiCreate;
     oi = initDefaultSpectrum(oi);
+    oi = oiSet(oi,'fov',fov);
     oi = oiSet(oi,'photons',radianceData.multispectralImage*radianceData.radiometricScaleFactor);
     oi = oiSet(oi,'name',oiName);
     
-    vcAddAndSelectObject(oi);
+    % vcAddAndSelectObject(oi);
     
     % Save oi and rendering parameters.
     fName = fullfile(destPath,strcat(oiName,'.mat'));
@@ -260,7 +273,7 @@ for i = 1:nConditions
     
     save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist');
     
-    imwrite(oiGet(oi,'rgb'),fullfile(destPath,strcat(oiName,'.png')));
+    % imwrite(oiGet(oi,'rgb'),fullfile(destPath,strcat(oiName,'.png')));
     
 end
 

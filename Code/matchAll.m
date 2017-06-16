@@ -7,11 +7,9 @@ ieInit;
 wave = 400:10:700;
 [codePath, parentPath] = uwSimRootPath();
 
-% rtb4Folder = getpref('RenderToolbox4','workingFolder');
-% renderingsFolder  = fullfile(rtb4Folder,'UnderwaterChart','renderings','PBRT');
-
 renderingsFolder = fullfile(parentPath,'Results','All');
 imagesFolder = fullfile(parentPath,'Images','Underwater');
+
 resultFolder = fullfile(parentPath,'Results','Matching');
 if ~exist(resultFolder,'dir'), mkdir(resultFolder); end
 
@@ -20,13 +18,13 @@ if ~exist(resultFolder,'dir'), mkdir(resultFolder); end
 cameraDistance = 1000;
 
 depth = linspace(1,20,10)*10^3; % mm
-chlorophyll = logspace(-2,0,5);
-dom = logspace(-2,0,5);
+chlorophyll = logspace(-2,1,10);
+cdom = logspace(-2,1,9);
 
 smallParticleConc = 0.0;
 largeParticleConc = 0.0;
 
-[depthV, chlV, cdomV, spV, lpV] = ndgrid(depth, chlorophyll, dom,...
+[depthV, chlV, cdomV, spV, lpV] = ndgrid(depth, chlorophyll, cdom,...
     smallParticleConc,...
     largeParticleConc);
 
@@ -45,7 +43,9 @@ simulatedRGB = cell(1,numel(depthV));
 
 for d = 1:numel(depthV)
     
-    fName = sprintf('UnderwaterChart-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.mat', ...
+    fprintf('Analyzing image %i/%i\n',d,numel(depthV));
+    
+    fName = sprintf('uwSim-All_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f.mat', ...
         cameraDistance/10^3, ...
         depthV(d)/10^3, ...
         chlV(d), ...
@@ -57,6 +57,14 @@ for d = 1:numel(depthV)
     data = load(oiFilePath);
     [rgbImageSimulated, avgMacbeth] = simulateCamera(data.oi,sensor);
     simulatedRGB{d} = avgMacbeth;
+    
+    % If you have a lot of data you'd beter remove some 
+    % oi, scene and ip files from ISET global variables.
+    vcDeleteSomeObjects('sensor',1:length(vcGetObjects('sensor')));    
+    vcDeleteSomeObjects('oi',1:length(vcGetObjects('oi')));
+    vcDeleteSomeObjects('ip',1:length(vcGetObjects('ip')));
+
+    
 end
 
 fName = fullfile(parentPath,'Results','Matching','simulatedRGB.mat');
