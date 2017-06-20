@@ -43,6 +43,7 @@ produce final images. Rather than install these programs we provide their docker
 A cross-platform Docker engine is required to run these.
 * [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
+* [DCraw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
 
 We have successfully installed and run the simulator on OSX and Linux (Debian) systems. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows platforms (but we have heard of some successful installations).
 
@@ -70,8 +71,17 @@ the spectral responsivities of the Canon G7X used in the experiments.
 
 ## Installation
 
-Please clone the repository to your local drive. From MATLAB run `Code/install.m` function 
-to correctly set up MATLAB PATH in your environment. 
+### Installing dependencies
+
+
+### Installing Undereater Image Systems Simulator
+
+Clone this repository to your local drive
+```
+>> git clone https://github.com/hblasins/uwSim.git
+```
+
+Inside MATLAB run `Code/install.m` function to correctly set up MATLAB PATH in your environment. 
 
 ## Getting started
 
