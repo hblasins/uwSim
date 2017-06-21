@@ -72,17 +72,29 @@ the spectral responsivities of the Canon G7X used in the experiments.
 
 ## Installation
 
-### Installing Homebrew
+1. Homebrew
 Paste the following into your terminal window.
 ```
 >> /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
-### Installing DCRaw
+
+2. RenderToolbox4
+3. Docker
+4. CVX
+5. Image Systems Engineering Toolkit (ISET)
+Clone the ISET repository to your local drive.
+```
+>> git clone https://github.com/imageval/iset.git
+```
+In MATLAB go to the ISET root directory and run `isetPath(pwd)`. This function will add ISET directory and sub-directories to your MATLAB path.
+
+6. DCRaw
+Paste the following into your terminal window.
 ```
 >> brew install dcraw
 ```
 
-### Installing Undereater Image Systems Simulator
+7. Undereater Image Systems Simulator
 
 Clone this repository to your local drive
 ```
