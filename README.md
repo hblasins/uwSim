@@ -22,7 +22,7 @@ different underwater imaing systems and correction algorithms.
 
 If you use these tools please cite the following
 ```
-@inproceedings{blasinski2017cmf,
+@inproceedings{blasinski2017uiss,
     title={Underwater Image Systems Simulation},
     author={Blasinski, Henryk and Lian, Trisha and Farrell, Joyce},
     booktitle={Imaging and Applied Optics Congress},
@@ -73,16 +73,19 @@ the spectral responsivities of the Canon G7X used in the experiments.
 ## Installation
 
 ### 1. Homebrew
-Paste the following into your terminal window.
+To install Homebrew run the following in your terminal window.
 ```
 >> /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
 ### 2. RenderToolbox4
 
+
 ### 3. Docker
+Go to [Docker website](https://www.docker.com) and search for the installation package. We use Docker Community Edition for Mac. Follow the installation instructions. Once Docker is set up, the software will automatically download the necessary image rendering components from the cloud. 
 
 ### 4. CVX
+Visit the [CVX download](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
 
 ### 5. Image Systems Engineering Toolkit (ISET)
 Clone the ISET repository to your local drive.
@@ -92,7 +95,7 @@ Clone the ISET repository to your local drive.
 In MATLAB go to the ISET root directory and run `isetPath(pwd)`. This function will add ISET directory and sub-directories to your MATLAB PATH.
 
 ### 6. DCRaw
-Paste the following into your terminal window.
+Run the following command in your terminal window.
 ```
 >> brew install dcraw
 ```
