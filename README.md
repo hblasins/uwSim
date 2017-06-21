@@ -36,6 +36,7 @@ If you use these tools please cite the following
 To succesffuly run the scripts in this project the following dependencies need to be 
 installed.
 
+* [Homebrew](https://brew.sh) - a package manager for Mac OSX, it will make installing many components much easier.
 * [RenderToolbox4](http://rendertoolbox.org) - a set of Matlab tools to create, manipulate and
 render complex 3D scene files.
 * [Docker](https://www.docker.com) - RenderToolbox4 uses either Mitsuba or PBRT renderers to 
@@ -43,7 +44,7 @@ produce final images. Rather than install these programs we provide their docker
 A cross-platform Docker engine is required to run these.
 * [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
-* [DCraw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
+* [DCRaw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
 
 We have successfully installed and run the simulator on OSX and Linux (Debian) systems. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows platforms (but we have heard of some successful installations).
 
@@ -71,8 +72,15 @@ the spectral responsivities of the Canon G7X used in the experiments.
 
 ## Installation
 
-### Installing dependencies
-
+### Installing Homebrew
+Paste the following into your terminal window.
+```
+>> /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+### Installing DCRaw
+```
+>> brew install dcraw
+```
 
 ### Installing Undereater Image Systems Simulator
 
