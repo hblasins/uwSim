@@ -177,7 +177,8 @@ for m = 1:nReal
     % Find parameters for which the error is less than 10%, and see where
     % they are placed in teh 3D space.
     
-    ids = find(error < min(error(:)*1.1));
+    ids = find(error < min(error(:)*1.05));
+    [sortedError, loc] = sort(error(ids));
     
     subDepth = depthV(ids);
     subCdom = cdomV(ids);
@@ -189,7 +190,7 @@ for m = 1:nReal
     hold on; grid on; box on;
     
     for i=1:length(subDepth(:))
-        plot3(subDepth(i)/1000,subCdom(i),subChl(i),'.','MarkerSize',20,'Color',cmap(i,:));
+        plot3(subDepth(loc(i))/1000,subCdom(loc(i)),subChl(loc(i)),'.','MarkerSize',20,'Color',cmap(i,:));
     end
     xlim([min(depthV(:)) max(depthV(:))]/1000);
     ylim([min(cdomV(:)) max(cdomV(:))]);
