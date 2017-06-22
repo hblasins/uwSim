@@ -89,9 +89,9 @@ Update `apt-get`
 ### 2. RenderToolbox4
 The RenderToolbox code is contained in three github repositories: RenderToolbox4, mexximp and mPbrt, you will need to clone all of them.
 ```
-git clone git@github.com:RenderToolbox/RenderToolbox4.git
-git clone git@github.com:RenderToolbox/mexximp.git
-git clone git@github.com:RenderToolbox/mPbrt.git
+>> git clone git@github.com:RenderToolbox/RenderToolbox4.git
+>> git clone git@github.com:RenderToolbox/mexximp.git
+>> git clone git@github.com:RenderToolbox/mPbrt.git
 ```
 RenderToolbox4 requires several dependencies and can be a little tricky to install. Please make sure to follow the installation instructions either from the [official site](https://github.com/RenderToolbox/RenderToolbox4) or, if you run into isses, you can also go over [these notes](https://github.com/scienstanford/ciset/wiki/Installation).
 
