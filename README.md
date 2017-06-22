@@ -72,20 +72,34 @@ the spectral responsivities of the Canon G7X used in the experiments.
 
 ## Installation
 
-### 1. Homebrew
+
+### 1. Homebrew (MacOS)
 To install Homebrew run the following in your terminal window.
 ```
 >> /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
+### 1. Apt-get (Linux)
+Update `apt-get`
+```
+>> sudo apt-get update
+>> sudo apt-get upgrade
+```
+
 
 ### 2. RenderToolbox4
-
+The RenderToolbox code is contained in three github repositories: RenderToolbox4, mexximp and mPbrt, you will need to clone all of them.
+```
+git clone git@github.com:RenderToolbox/RenderToolbox4.git
+git clone git@github.com:RenderToolbox/mexximp.git
+git clone git@github.com:RenderToolbox/mPbrt.git
+```
+RenderToolbox4 requires several dependencies and can be a little tricky to install. Please make sure to follow the installation instructions either from the [official site](https://github.com/RenderToolbox/RenderToolbox4) or, if you run into isses, you can also go over [these notes](https://github.com/scienstanford/ciset/wiki/Installation).
 
 ### 3. Docker
 Go to [Docker website](https://www.docker.com) and search for the installation package. We use Docker Community Edition for Mac. Follow the installation instructions. Once Docker is set up, the software will automatically download the necessary image rendering components from the cloud. 
 
 ### 4. CVX
-Visit the [CVX download](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
+Visit the [CVX site](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
 
 ### 5. Image Systems Engineering Toolkit (ISET)
 Clone the ISET repository to your local drive.
@@ -96,9 +110,15 @@ In MATLAB go to the ISET root directory and run `isetPath(pwd)`. This function w
 
 ### 6. DCRaw
 Run the following command in your terminal window.
+
 ```
+MacOS:
 >> brew install dcraw
+
+Linux:
+>> sudo apt-get install dcraw
 ```
+
 
 ### 7. Undereater Image Systems Simulator
 Clone this repository to your local drive
