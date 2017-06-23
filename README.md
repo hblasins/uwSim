@@ -97,7 +97,7 @@ The RenderToolbox code is contained in three github repositories: `RenderToolbox
 ```
 We have found that the [official installation instructions](https://github.com/RenderToolbox/RenderToolbox4) may not always work. Since this toolbox requires a few dependencies, we also describe the required steps below.
 
-#### 2.2 OpenEXR 
+#### 2.1 OpenEXR 
 Install this library to read high dynamic range, multispectral images.
 ```
 MacOS:
@@ -130,7 +130,7 @@ makeMexximp
 ```
 This script will compile all the necessary files. 
 
-#### 2.3 RenderToolbox4
+#### 2.4 RenderToolbox4
 The RenderToolbox uses a Matlab wrapper around the OpenEXR library. These wrappers also need to be MEX compiled. Open MATLAB, go to `RenderToolbox4/Utilities/ReadMultispectralEXR/ReadMultichannelEXR` directory and run
 ```
 rtbMakeReadMultichannelEXR
@@ -182,8 +182,8 @@ Inside MATLAB run `Code/install.m` function to correctly set up MATLAB PATH in y
 To get you started please have a look (and run) at the `Code/renderUnderwaterChart.m` script. This is a simple script that renders an image of a Macbeth chart submertged in water. You can specify a number of parameters that affect the final image appearance :
 * depth
 * camera to chart distance
-* chlorophyl concentraion
-* color dissolved organic matter (CDOM) concentraion
+* chlorophyll concentraion
+* colored dissolved organic matter (CDOM) concentraion
 * small particle concentration
 * large particle concentration
 
