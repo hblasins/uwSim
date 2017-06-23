@@ -11,7 +11,9 @@ clc;
 ieInit;
 
 [codePath, parentPath] = uwSimRootPath();
-resultFolder = fullfile(parentPath,'Results','Matching');
+% If resultFolder = [] no results are saved.
+% resultFolder = fullfile(parentPath,'Results','Matching');
+resultFolder = [];
 
 %% Create a Canon G7X camera model
 wave = 400:10:700;
@@ -33,7 +35,6 @@ load(fName);
 
 nReal = size(measuredRGB,2);
 nSim = size(simulatedRGB,2);
-meta = cell(nReal,1);
 
 uniqueDepth = unique(depthV);
 uniqueCdom = unique(cdomV);
@@ -43,7 +44,6 @@ uniqueChl = unique(chlV);
 for m = 1:nReal
     
     [~, imgName] = fileparts(fNames{m});
-    [realSensor, cp, ~, meta{m}] = readCameraImage(fNames{m}, sensor);
     
     error = zeros(nSim,1);
     for s = 1:nSim
@@ -108,11 +108,18 @@ for m = 1:nReal
     % Save images and results
     
     if ~isempty(resultFolder)
+        
+        fileName = fullfile(parentPath,fNames{m});
+        [realSensor, cp] = readCameraImage(fileName, sensor);
+
+        
         ip = ipCompute(ipCreate,realSensor);
         img = ipGet(ip,'sensor channels');
-        img = img/(5*max(img(:)));
-        fName = fullfile(resultFolder,sprintf('%s.png',imgName));
-        imwrite(img,fName);
+        
+        % Save full resolution camera image
+        % img = img/(5*max(img(:)));
+        % fName = fullfile(resultFolder,sprintf('%s.png',imgName));
+        % imwrite(img,fName);
         
         
         fName = fullfile(resultFolder,sprintf('%s_sim.png',imgName));

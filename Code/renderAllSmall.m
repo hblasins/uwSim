@@ -107,6 +107,11 @@ pixelSamples = 32;
 volumeStepSize = 50;
 cameraDistance = 1000; % mm
 
+
+% --- CAMERA PARAMETERS ---
+% Note these are repeated in the PBRTremodeller function,
+% Here we use the values only to compute the scene fov,
+% given that we know that we are looking at a Macbeth chart.
 patchSize = 24;
 chartHeight = 4*patchSize;
 chartWidth = 6*patchSize;

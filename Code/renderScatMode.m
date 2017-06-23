@@ -128,6 +128,22 @@ end
 
 %% Write conditions and generate scene files
 
+camDist = 2000; % mm
+
+% --- CAMERA PARAMETERS ---
+% Note these are repeated in the PBRTremodeller function,
+% Here we use the values only to compute the scene fov,
+% given that we know that we are looking at a Macbeth chart.
+patchSize = 24;
+chartHeight = 4*patchSize;
+chartWidth = 6*patchSize;
+
+filmHalfDiag = 10;
+targetHalfDiag = 1.2*sqrt(chartHeight^2+chartWidth^2)/2;
+filmDistance = filmHalfDiag*camDist/targetHalfDiag;
+
+fov = atan2d(filmHalfDiag,filmDistance);
+
 % --- WATER PARAMETERS ---
 
 nConditions = 4; % Number of images of varying parameters to render
@@ -135,7 +151,7 @@ nConditions = 4; % Number of images of varying parameters to render
 waterDepth = ones(1,nConditions).*1000; % mm
 pixelSamples = ones(1,nConditions).*32;
 volumeStepSize = ones(1,nConditions).*5;
-cameraDistance = ones(1,nConditions).*2000; % mm
+cameraDistance = ones(1,nConditions).*camDist; % mm
 
 chlorophyll = ones(1,nConditions).*0.0;
 dom = ones(1,nConditions).*0.0;
@@ -243,6 +259,7 @@ for i = 1:nConditions
     oi = initDefaultSpectrum(oi);
     oi = oiSet(oi,'photons',radianceData.multispectralImage*radianceData.radiometricScaleFactor);
     oi = oiSet(oi,'name',oiName);
+    oi = oiSet(oi,'fov',fov);
     
     vcAddAndSelectObject(oi);
     
@@ -258,10 +275,10 @@ for i = 1:nConditions
     
     save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist','scatMode','flashDistanceFromCamera','flashDistanceFromChart'); 
         
-    imwrite(oiGet(oi,'rgb'),fullfile(destPath,strcat(oiName,'.png')));
+    % imwrite(oiGet(oi,'rgb'),fullfile(destPath,strcat(oiName,'.png')));
      
-    H = plotPhaseFunction(fullfile(resourceFolder,sprintf('phase_%i.txt',i)),550);
-    savefig(H,fullfile(destPath,sprintf('phase_%s.fig',scatteringMode{i})));
+    % H = plotPhaseFunction(fullfile(resourceFolder,sprintf('phase_%i.txt',i)),550);
+    % savefig(H,fullfile(destPath,sprintf('phase_%s.fig',scatteringMode{i})));
     
 end
 
