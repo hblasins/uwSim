@@ -20,7 +20,7 @@ different underwater imaing systems and correction algorithms.
 </p>
 
 
-If you use these tools please cite the following
+If you use these tools please cite
 ```
 @inproceedings{blasinski2017uiss,
     title={Underwater Image Systems Simulation},
@@ -89,9 +89,9 @@ Update `apt-get`
 ### 2. RenderToolbox4
 The RenderToolbox code is contained in three github repositories: RenderToolbox4, mexximp and mPbrt, you will need to clone all of them.
 ```
->> git clone git@github.com:RenderToolbox/RenderToolbox4.git
->> git clone git@github.com:RenderToolbox/mexximp.git
->> git clone git@github.com:RenderToolbox/mPbrt.git
+>> git clone https://github.com/RenderToolbox/RenderToolbox4.git
+>> git clone https://github.com/RenderToolbox/mexximp.git
+>> git clone https://github.com/RenderToolbox/mPbrt.git
 ```
 RenderToolbox4 requires several dependencies and can be a little tricky to install. Please make sure to follow the installation instructions either from the [official site](https://github.com/RenderToolbox/RenderToolbox4) or, if you run into isses, you can also go over [these notes](https://github.com/scienstanford/ciset/wiki/Installation).
 
@@ -120,7 +120,7 @@ Linux:
 ```
 
 
-### 7. Undereater Image Systems Simulator
+### 7. Underwater Image Systems Simulator
 Clone this repository to your local drive
 ```
 >> git clone https://github.com/hblasins/uwSim.git
