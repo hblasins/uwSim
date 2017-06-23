@@ -45,9 +45,7 @@ produce final images. Rather than install these programs we provide their docker
 A cross-platform Docker engine is required to run these.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
 * [DCRaw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
-
-### Optional
-* [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. We currently use MATLAB Optimization Toolbox to peform a very small nubmer of calculations in certain data analysis scripts. The same computation can be coded with CVX.
+* [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. As an alternative MATLAB Optimization Toolbox can also be used. 
 
 We have successfully installed and run the simulator on OSX and Linux (Debian) systems on an number of MATLAB releases prior to 2017a. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows (but we have heard of some successful installations).
 
@@ -165,7 +163,7 @@ Linux:
 >> sudo apt-get install dcraw
 ```
 
-### 6. CVX (Optional)
+### 6. CVX
 Visit the [CVX site](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
 
 
@@ -174,7 +172,7 @@ Clone this repository to your local drive
 ```
 >> git clone https://github.com/hblasins/uwSim.git
 ```
-Inside MATLAB run `Code/install.m` function to correctly set up MATLAB PATH in your environment. 
+** Each time you start MATLAB run `Code/install.m` function to correctly set up MATLAB PATH in your environment. **
 
 
 ## Getting started
