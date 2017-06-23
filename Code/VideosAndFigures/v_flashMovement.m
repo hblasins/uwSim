@@ -4,6 +4,18 @@ close all;
 clear all;
 clc;
 
+[codePath, parentPath] = uwSimRootPath();
+resultFolder = fullfile(parentPath,'Results','FlashMovement');
+
+if ~exist(resultFolder,'dir') || isempty(dir(resultFolder))
+    
+    msg = sprintf('The folder %s does not exist or is empty.\n',resultFolder);
+    msg = [msg 'You need to run renderFlashMovement.m first to generate the data.\n'];
+    
+    error(msg);
+end
+
+%%
 
 waterDepth = 1; % m
 cameraDistance = 2;
@@ -13,12 +25,14 @@ smallParticleConc = 0.05;
 largeParticleConc = 0.05;
 
 zpos = 2010;
+% Make sure that the ypos range reflects the range of values you generated
+% the data for:
 ypos = -200:15:200; % mm 
 nAngles = length(ypos);
 
 [~, parentPath] = uwSimRootPath();
-dataPath = fullfile(parentPath,'Images','SimulatedImages','FlashMovement');
-resultPath = fullfile(parentPath,'Results');
+dataPath = fullfile(parentPath,'Results','FlashMovement');
+resultPath = fullfile(parentPath,'Images');
 
 % Create video writer
 videoname = fullfile(resultPath,'flashMovement');
@@ -31,7 +45,7 @@ for i=1:2*nAngles
     if i>nAngles
         cntr = 2*nAngles - i + 1;
     end
-    fName = sprintf('%i_UnderwaterChart_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%.2f_%.2f_default.png', ...
+    fName = sprintf('%i_UnderwaterChart_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%0.2f_%.2f_%.2f_default.mat', ...
         cntr,...
         cameraDistance, ...
         waterDepth, ...
@@ -42,8 +56,9 @@ for i=1:2*nAngles
         ypos(cntr),zpos);
     
     fName = fullfile(dataPath,fName);
+    load(fName);
     
-    img = imread(fName);
+    img = oiGet(oi,'rgb');
     
     fid = figure(1); clf;
     imshow(imresize(img,2),'Border','tight');

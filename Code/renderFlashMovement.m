@@ -33,6 +33,11 @@ clc;
 
 ieInit;
 
+[codePath, parentPath] = uwSimRootPath();
+
+destPath = fullfile(parentPath,'Results','FlashMovement');
+if ~exist(destPath,'dir'), mkdir(destPath); end
+
 %% Choose rendering options
 
 hints.imageWidth = 160;
@@ -46,10 +51,10 @@ hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
 
 % Helper function used to move scene objects and camera around
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller_flashOnly;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @mexximpRemodellerFlashOnly;
 
 % Helper function used to control PBRT parameters (e.g. light spectra, reflectance spectra, underwater parameters)
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller_flashOnly;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @PBRTRemodellerFlashOnly;
 
 % Don't copy a new mesh file for every scene (TODO: Is this what this does?)
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
@@ -90,7 +95,7 @@ resourceFolder = rtbWorkingFolder('folderName','resources',...
 % the range of the two walls. The height of the box varies with water
 % depth.
 
-parentSceneFile = fullfile(uwSimulationRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae');
+parentSceneFile = fullfile(parentPath,'Scenes','underwaterRealisticBlackWalls.dae');
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
     'imagemagicImage','hblasins/imagemagic-docker',...
@@ -246,7 +251,7 @@ for i = 1:nConditions
     vcAddAndSelectObject(oi);
     
     % Save oi
-    fName = fullfile(renderingsFolder,strcat(oiName,'.mat'));
+    fName = fullfile(destPath,strcat(oiName,'.mat'));
     depth = waterDepth(i);
     chlC = chlorophyll(i);
     cdomC = dom(i);
@@ -257,7 +262,7 @@ for i = 1:nConditions
     
     save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist','scatMode','flashDistanceFromCamera','flashDistanceFromChart'); 
         
-    imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
+    % imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
 
     
 %     H = plotPhaseFunction(fullfile(resourceFolder,sprintf('phase_%i.txt',i)),550);
