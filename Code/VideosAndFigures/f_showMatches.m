@@ -50,12 +50,28 @@ for m = 1:nReal
         
         % We allow for an unknown scaling between the simulated and
         % measured data.
-        cvx_begin quiet
-            variable a
-            minimize norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:))
-            subject to
-                a>=0
-        cvx_end
+        %
+        % min |measuredRGB*a - simulatedRGB|
+        % subject to a>=0
+        %
+        % A snipet of CVX code that produces the solution 
+        %
+        % cvx_begin quiet
+        %    variable a
+        %    minimize norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:))
+        %    subject to
+        %        a>=0
+        % cvx_end
+        
+        % Or Matlab's optimization toolbox
+        problem.H = measuredRGB{m}(:)'*measuredRGB{m}(:);
+        problem.f = -measuredRGB{m}(:)'*simulatedRGB{m}(:);
+        problem.lb = 0;
+        problem.solver = 'quadprog';
+        problem.options = optimoptions(problem.solver,'MaxIter',1000,...
+            'TolCon',1e-12,'Display','off');
+        
+        a = quadprog(problem);
         
         error(s) = norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:));
     end
