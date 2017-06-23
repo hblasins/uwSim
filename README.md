@@ -36,17 +36,20 @@ If you use these tools please cite
 To succesffuly run the scripts in this project the following dependencies need to be 
 installed.
 
+### Required
 * [Homebrew](https://brew.sh) - a package manager for Mac OSX, it will make installing many components much easier.
 * [RenderToolbox4](http://rendertoolbox.org) - a set of Matlab tools to create, manipulate and
 render complex 3D scene files.
 * [Docker](https://www.docker.com) - RenderToolbox4 uses either Mitsuba or PBRT renderers to 
 produce final images. Rather than install these programs we provide their dockerized implementations.
 A cross-platform Docker engine is required to run these.
-* [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
 * [DCRaw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
 
-We have successfully installed and run the simulator on OSX and Linux (Debian) systems. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows platforms (but we have heard of some successful installations).
+## Optional
+* [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. We currently use MATLAB Optimization Toolbox to peform a very small nubmer of calculations in certain data analysis scripts. The same computation can be coded with CVX.
+
+We have successfully installed and run the simulator on OSX and Linux (Debian) systems on an number of MATLAB releases prior to 2017a. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows (but we have heard of some successful installations).
 
 
 ## Data
@@ -85,7 +88,6 @@ Update `apt-get`
 >> sudo apt-get upgrade
 ```
 
-
 ### 2. RenderToolbox4
 The RenderToolbox code is contained in three github repositories: RenderToolbox4, mexximp and mPbrt, you will need to clone all of them.
 ```
@@ -93,24 +95,68 @@ The RenderToolbox code is contained in three github repositories: RenderToolbox4
 >> git clone https://github.com/RenderToolbox/mexximp.git
 >> git clone https://github.com/RenderToolbox/mPbrt.git
 ```
-RenderToolbox4 requires several dependencies and can be a little tricky to install. Please make sure to follow the installation instructions either from the [official site](https://github.com/RenderToolbox/RenderToolbox4) or, if you run into isses, you can also go over [these notes](https://github.com/scienstanford/ciset/wiki/Installation).
+We have found that the [official installation instructions](https://github.com/RenderToolbox/RenderToolbox4) may not always work. This toolbox requires a few dependencies
+
+#### 2.2 OpenEXR 
+This library allows us to read high dynamic range, multispectral images.
+```
+MacOS:
+>> berw install openexr
+
+Linux:
+>> sudo apt-get install libopenexr-dev openexr
+
+```
+
+#### 2.2 ASSIMP
+Assimp is a library designed to read different 3D object file formats (such as .obj, .fbx etc) into a common representation.
+It can be easily installed on MacOS, but on Linux it needs to be complied from source.
+```
+MacOS:
+>> brew install assimp
+
+Linux:
+>> sudo apt-get install zlib1g-dev cmake
+>> git clone https://github.com/assimp/assimp.git
+>> cd ./assimp
+>> cmake CMakeLists.txt -G 'Unix Makefiles'
+>> make
+```
+
+#### 2.3 Mexximp
+Mexximp is a Matlab wrapper around the Assimp library. It requires MEX compiliation of certain files. To install open MATLAB, go to the Mexximp root directory `mexximp` and type
+```
+makeMexximp
+```
+This script will compile the necessary files. 
+
+#### 2.3 RenderToolbox4
+The RenderToolbox uses a Matlab wrapper around the OpenEXR library to read multispectal files. These functions also need to be MEX compiled. Open MATLAB, go to `RenderToolbox4/Utilities/ReadMultispectralEXR/ReadMultichannelEXR` directory and run
+```
+rtbMakeReadMultichannelEXR
+```
+Next, it is necessary to configure RenderToolbox preferences. Still in MATLAB, go to the `RenderToolbox4` root directory and run
+```
+rtbLocalConfigTemplate
+```
+You may want to edit this script if you would like to change RenderToolbox preferences.
+
+Don't foret to add all `RenderToolbox4`, `mexximp` and `mPbrt` directories (and all subdirectories) to MATLAB PATH. Now you should be able to run a simple demo script `rtbMakeChessSet`.
+
 
 ### 3. Docker
 Go to [Docker website](https://www.docker.com) and search for the installation package. We use Docker Community Edition for Mac. Follow the installation instructions. Once Docker is set up, the software will automatically download the necessary image rendering components from the cloud. 
 
-### 4. CVX
-Visit the [CVX site](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
 
-### 5. Image Systems Engineering Toolkit (ISET)
+### 4. Image Systems Engineering Toolkit (ISET)
 Clone the ISET repository to your local drive.
 ```
 >> git clone https://github.com/imageval/iset.git
 ```
 In MATLAB go to the ISET root directory and run `isetPath(pwd)`. This function will add ISET directory and sub-directories to your MATLAB PATH.
 
-### 6. DCRaw
+### 5. DCRaw
 Run the following command in your terminal window.
-
 ```
 MacOS:
 >> brew install dcraw
@@ -119,6 +165,9 @@ Linux:
 >> sudo apt-get install dcraw
 ```
 
+### 6. CVX (Optional)
+Visit the [CVX site](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
+
 
 ### 7. Underwater Image Systems Simulator
 Clone this repository to your local drive
@@ -126,6 +175,7 @@ Clone this repository to your local drive
 >> git clone https://github.com/hblasins/uwSim.git
 ```
 Inside MATLAB run `Code/install.m` function to correctly set up MATLAB PATH in your environment. 
+
 
 ## Getting started
 
