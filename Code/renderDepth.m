@@ -141,7 +141,7 @@ fov = atan2d(filmHalfDiag,filmDistance);
 
 % --- WATER PARAMETERS ---
 
-waterDepth = [0:1:20]*10^3; % mm
+waterDepth = [0:2:20]*10^3; % mm
 
 nConditions = length(waterDepth); % Number of images of varying parameters to render
 

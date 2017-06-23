@@ -33,12 +33,18 @@ clc;
 
 ieInit;
 
+[codePath, parentPath] = uwSimRootPath();
+
+destPath = fullfile(parentPath,'Results','Distance');
+if ~exist(destPath,'dir'), mkdir(destPath); end
+
+
 %% Choose rendering options
 
 hints.imageWidth = 320;
 hints.imageHeight = 240;
 
-hints.recipeName = 'UnderwaterChart'; % Name of the render
+hints.recipeName = 'uwSim-Dist'; % Name of the render
 hints.renderer = 'PBRT'; % Use PBRT as the renderer
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 
@@ -90,7 +96,7 @@ resourceFolder = rtbWorkingFolder('folderName','resources',...
 % the range of the two walls. The height of the box varies with water
 % depth.
 
-parentSceneFile = fullfile(uwSimulationRootPath,'..','Scenes','underwaterRealisticBlackWalls.dae'); 
+parentSceneFile = fullfile(parentPath,'Scenes','underwaterRealisticBlackWalls.dae'); 
 [scene, elements] = mexximpCleanImport(parentSceneFile,...
     'flipUVs',true,...
     'imagemagicImage','hblasins/imagemagic-docker',...
@@ -118,11 +124,25 @@ end
 
 %% Write conditions and generate scene files
 
+cameraDistance = [1 5 10 15 20].*1000; % mm
+
+% --- CAMERA PARAMETERS ---
+% Note these are repeated in the PBRTremodeller function,
+% Here we use the values only to compute the scene fov,
+% given that we know that we are looking at a Macbeth chart.
+patchSize = 24;
+chartHeight = 4*patchSize;
+chartWidth = 6*patchSize;
+
+filmHalfDiag = 10;
+targetHalfDiag = 1.2*sqrt(chartHeight^2+chartWidth^2)/2;
+filmDistance = filmHalfDiag*cameraDistance/targetHalfDiag;
+
+fov = atan2d(filmHalfDiag,filmDistance);
+
 % --- WATER PARAMETERS ---
 
-nConditions = 5; % Number of images of varying parameters to render
-
-cameraDistance = [1 5 10 15 20].*1000; % mm
+nConditions = length(cameraDistance); % Number of images of varying parameters to render
 
 waterDepth = ones(1,nConditions).*10*10^3; % mm
 pixelSamples = ones(1,nConditions).*32;
@@ -223,11 +243,12 @@ for i = 1:nConditions
     oi = initDefaultSpectrum(oi);
     oi = oiSet(oi,'photons',radianceData.multispectralImage*radianceData.radiometricScaleFactor);
     oi = oiSet(oi,'name',oiName);
+    oi = oiSet(oi,'fov',fov(i));
     
     vcAddAndSelectObject(oi);
     
     % Save oi
-    fName = fullfile(renderingsFolder,strcat(oiName,'.mat'));
+    fName = fullfile(destPath,strcat(oiName,'.mat'));
     depth = waterDepth(i);
     chlC = chlorophyll(i);
     cdomC = dom(i);
@@ -236,9 +257,7 @@ for i = 1:nConditions
     camDist = cameraDistance(i);
     
     save(fName,'oi','depth','chlC','cdomC','smallPart','largePart','camDist');
-    
-    imwrite(oiGet(oi,'rgb'),fullfile(renderingsFolder,strcat(oiName,'.png')));
-    
+        
 end
 
 oiWindow;
