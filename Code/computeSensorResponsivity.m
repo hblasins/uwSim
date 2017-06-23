@@ -22,8 +22,8 @@ illuminantFName = fullfile(parentPath,'Parameters','mcIlluminants.mat');
 destFile = fullfile(parentPath,'Parameters','CanonG7x.mat');
 
 % Estimated responsivity wavelength sampling.
-wavelenghts = 400:5:700;                        
-nWaves = length(wavelenghts);
+wavelengths = 400:5:700;                        
+nWaves = length(wavelengths);
 
 % Responsivity smoothness tuning parameter.
 lambda = 1;
@@ -86,7 +86,7 @@ mcWaves = ill.mcWavelengths;
 
 % Load the illuminant spectra, convert to photons and normalize
 illuminant = Energy2Quanta(ill.wav,illuminant);
-illuminant = interp1(ill.wav,illuminant,wavelenghts);
+illuminant = interp1(ill.wav,illuminant,wavelengths);
 input = illuminant'/max(illuminant(:));
 
 
@@ -101,16 +101,17 @@ for i=1:3
     % responsivities. 
     %
     % Below is the CVX problem formulation
-    %{
+    
     cvx_begin
         variable resp(nWaves,1)
         minimize norm(input*resp - data(:,i),2) + lambda*norm(R*resp,2)
         subject to 
             resp >= 0
     cvx_end
-    %}
+    
     
     % Or Matlab optimization toolbox formulation
+    %{
     A = [input; sqrt(lambda)*R];
     b = [data(:,i); zeros(nWaves-1,1)];
     
@@ -122,16 +123,16 @@ for i=1:3
         'TolCon',1e-12,'Display','off');
     
     resp = quadprog(problem);
-    
+    %}
     responsivity(:,i) = resp;
     
 end
 
 figure; 
-plot(wavelenghts, responsivity);
+plot(wavelengths, responsivity);
 xlabel('Wavelength, nm');
 
 %% Save the results
 
-ieSaveSpectralFile(wavelenghts,responsivity,'Canon G7X spectral responsivity curves.',destFile);
+ieSaveSpectralFile(wavelengths,responsivity,'Canon G7X spectral responsivity curves.',destFile);
 

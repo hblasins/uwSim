@@ -23,7 +23,7 @@ sensor = sensorCompute(sensor,oi);
 ieAddObject(sensor);
 
 data = macbethSelect(sensor,0,1,inputs.cp);
-avgSimulated = cell2mat(cellfun(@nanmean,data,'UniformOutput',false)');
+avgSimulated = cell2mat(cellfun(@meannan,data,'UniformOutput',false)');
 
 % expTime = sensorGet(sensor,'exposure time');
 % fprintf('Auto-exposure set exposure time to: %0.2f \n',expTime);

@@ -55,15 +55,16 @@ for m = 1:nReal
         % subject to a>=0
         %
         % A snipet of CVX code that produces the solution 
-        %
-        % cvx_begin quiet
-        %    variable a
-        %    minimize norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:))
-        %    subject to
-        %        a>=0
-        % cvx_end
+        
+        cvx_begin quiet
+           variable a
+           minimize norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:))
+           subject to
+               a>=0
+        cvx_end
         
         % Or Matlab's optimization toolbox
+        %{
         problem.H = measuredRGB{m}(:)'*measuredRGB{m}(:);
         problem.f = -measuredRGB{m}(:)'*simulatedRGB{m}(:);
         problem.lb = 0;
@@ -72,6 +73,7 @@ for m = 1:nReal
             'TolCon',1e-12,'Display','off');
         
         a = quadprog(problem);
+        %}
         
         error(s) = norm(measuredRGB{m}(:)*a - simulatedRGB{s}(:));
     end

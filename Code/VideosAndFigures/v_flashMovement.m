@@ -32,7 +32,7 @@ nAngles = length(ypos);
 
 [~, parentPath] = uwSimRootPath();
 dataPath = fullfile(parentPath,'Results','FlashMovement');
-resultPath = fullfile(parentPath,'Images');
+resultPath = fullfile(parentPath,'Figures');
 
 % Create video writer
 videoname = fullfile(resultPath,'flashMovement');
