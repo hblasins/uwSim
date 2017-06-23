@@ -4,6 +4,10 @@ close all;
 clear all;
 clc;
 
+ieInit
+
+%%
+
 nAngles = 100;
 
 waterDepth = 6; % m
@@ -27,16 +31,16 @@ for i=1:2*nAngles
     if i>nAngles
         cntr = 2*nAngles - i + 1;
     end
-    fName = sprintf('%i_uwSim-Staggered3D_%i_%0.2f_%0.2f_%0.2f.png', ...
+    fName = sprintf('%i_uwSim-Staggered3D_%i_%0.2f_%0.2f_%0.2f.mat', ...
         cntr,...
         waterDepth, ...
         chlorophyll, ...
         cdom, ...
         smallParticleConc);
     
-    fName = fullfile(dataPath,fName);
-    
-    img = imread(fName);
+    load(fullfile(dataPath,fName));
+       
+    img = oiGet(oi,'rgb');
     
     fid = figure(1); clf;
     imshow(img,'Border','tight');
