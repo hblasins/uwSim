@@ -45,7 +45,7 @@ produce final images. Rather than install these programs we provide their docker
 A cross-platform Docker engine is required to run these.
 * [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
 * [DCRaw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
-* [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. As an alternative MATLAB Optimization Toolbox can also be used. 
+* [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. As an alternative MATLAB Optimization Toolbox can also be used. **As of 06/2017 CVX is only supported on MATLAB 2016b and older.**
 
 We have successfully installed and run the simulator on OSX and Linux (Debian) systems on an number of MATLAB releases prior to 2017a. If you are interested in using the code on a Windows machine the biggest limitation is RenderToolbox4, which is not officially supported on Windows (but we have heard of some successful installations).
 
