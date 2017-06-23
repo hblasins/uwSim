@@ -89,16 +89,16 @@ Update `apt-get`
 ```
 
 ### 2. RenderToolbox4
-The RenderToolbox code is contained in three github repositories: RenderToolbox4, mexximp and mPbrt, you will need to clone all of them.
+The RenderToolbox code is contained in three github repositories: `RenderToolbox4`, `mexximp` and `mPbrt`, you will need to clone all of them.
 ```
 >> git clone https://github.com/RenderToolbox/RenderToolbox4.git
 >> git clone https://github.com/RenderToolbox/mexximp.git
 >> git clone https://github.com/RenderToolbox/mPbrt.git
 ```
-We have found that the [official installation instructions](https://github.com/RenderToolbox/RenderToolbox4) may not always work. This toolbox requires a few dependencies
+We have found that the [official installation instructions](https://github.com/RenderToolbox/RenderToolbox4) may not always work. Since this toolbox requires a few dependencies, we also describe the required steps below.
 
 #### 2.2 OpenEXR 
-This library allows us to read high dynamic range, multispectral images.
+Install this library to read high dynamic range, multispectral images.
 ```
 MacOS:
 >> berw install openexr
@@ -124,18 +124,18 @@ Linux:
 ```
 
 #### 2.3 Mexximp
-Mexximp is a Matlab wrapper around the Assimp library. It requires MEX compiliation of certain files. To install open MATLAB, go to the Mexximp root directory `mexximp` and type
+Mexximp is a Matlab wrapper around the Assimp library. It requires MEX compiliation of a few files. To install, open MATLAB, go to the Mexximp root directory `mexximp` and type
 ```
 makeMexximp
 ```
-This script will compile the necessary files. 
+This script will compile all the necessary files. 
 
 #### 2.3 RenderToolbox4
-The RenderToolbox uses a Matlab wrapper around the OpenEXR library to read multispectal files. These functions also need to be MEX compiled. Open MATLAB, go to `RenderToolbox4/Utilities/ReadMultispectralEXR/ReadMultichannelEXR` directory and run
+The RenderToolbox uses a Matlab wrapper around the OpenEXR library. These wrappers also need to be MEX compiled. Open MATLAB, go to `RenderToolbox4/Utilities/ReadMultispectralEXR/ReadMultichannelEXR` directory and run
 ```
 rtbMakeReadMultichannelEXR
 ```
-Next, it is necessary to configure RenderToolbox preferences. Still in MATLAB, go to the `RenderToolbox4` root directory and run
+Finally, you need to configure RenderToolbox preferences. Still in MATLAB, go to the `RenderToolbox4` root directory and run
 ```
 rtbLocalConfigTemplate
 ```
