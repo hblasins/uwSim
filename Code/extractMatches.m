@@ -114,7 +114,7 @@ for i = 1:nFiles
     ipWindow();
     
     data = macbethSelect(realSensor,1,1,cp);
-    avg = cell2mat(cellfun(@meanan,data,'UniformOutput',false)');
+    avg = cell2mat(cellfun(@meannan,data,'UniformOutput',false)');
     
     measuredRGB{i} = avg;
 end
