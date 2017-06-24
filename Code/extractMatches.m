@@ -7,8 +7,6 @@ ieInit;
 wave = 400:10:700;
 [codePath, parentPath] = uwSimRootPath();
 
-imagesFolder = fullfile(parentPath,'Images','Underwater');
-
 resultFolder = fullfile(parentPath,'Results','Matching');
 if ~exist(resultFolder,'dir'), mkdir(resultFolder); end
 
@@ -101,7 +99,7 @@ meta = cell(1,nFiles);
 
 for i = 1:nFiles
     
-    rawCameraFilePath = fullfile(imagesFolder,fNames{i});
+    rawCameraFilePath = fullfile(parentPath,fNames{i});
     [~, imageNames{i}, ext] = fileparts(rawCameraFilePath);
     [realSensor, cp, ~, meta{i}] = readCameraImage(rawCameraFilePath, sensor);
     
