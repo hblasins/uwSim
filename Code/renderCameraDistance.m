@@ -52,10 +52,10 @@ hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 hints.batchRenderStrategy.renderer.pbrt.dockerImage = 'vistalab/pbrt-v2-spectral';
 
 % Helper function used to move scene objects and camera around
-hints.batchRenderStrategy.remodelPerConditionAfterFunction = @underwaterMexximpRemodeller;
+hints.batchRenderStrategy.remodelPerConditionAfterFunction = @mexximpRemodeller;
 
 % Helper function used to control PBRT parameters (e.g. light spectra, reflectance spectra, underwater parameters)
-hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @underwaterPBRTRemodeller;
+hints.batchRenderStrategy.converter.remodelAfterMappingsFunction = @PBRTRemodeller;
 
 % Don't copy a new mesh file for every scene (TODO: Is this what this does?)
 hints.batchRenderStrategy.converter.rewriteMeshData = false;
