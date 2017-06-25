@@ -43,7 +43,7 @@ render complex 3D scene files.
 * [Docker](https://www.docker.com) - RenderToolbox4 uses either Mitsuba or PBRT renderers to 
 produce final images. Rather than install these programs we provide their dockerized implementations.
 A cross-platform Docker engine is required to run these.
-* [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations.
+* [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations. A light version of ISET is provided with this code repository.
 * [DCRaw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
 * [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. As an alternative MATLAB Optimization Toolbox can also be used. **As of 06/2017 CVX is only supported on MATLAB 2016b and older.**
 
@@ -145,15 +145,7 @@ Don't foret to add all `RenderToolbox4`, `mexximp` and `mPbrt` directories (and 
 ### 3. Docker
 Go to [Docker website](https://www.docker.com) and search for the installation package. We use Docker Community Edition for Mac. Follow the installation instructions. Once Docker is set up, the software will automatically download the necessary image rendering components from the cloud. 
 
-
-### 4. Image Systems Engineering Toolkit (ISET)
-Clone the ISET repository to your local drive.
-```
->> git clone https://github.com/imageval/iset.git
-```
-In MATLAB go to the ISET root directory and run `isetPath(pwd)`. This function will add ISET directory and sub-directories to your MATLAB PATH.
-
-### 5. DCRaw
+### 4. DCRaw
 Run the following command in your terminal window.
 ```
 MacOS:
@@ -163,11 +155,11 @@ Linux:
 >> sudo apt-get install dcraw
 ```
 
-### 6. CVX
+### 5. CVX
 Visit the [CVX site](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
 
 
-### 7. Underwater Image Systems Simulator
+### 6. Underwater Image Systems Simulator
 Clone this repository to your local drive
 ```
 >> git clone https://github.com/hblasins/uwSim.git
