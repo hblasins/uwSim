@@ -20,11 +20,6 @@
 % Copyright, Trisha Lian, Henryk Blasinski 2017
 
 %% Initialize
-
-clear; 
-close all; 
-clc;
-
 ieInit;
 
 [codePath, parentPath] = uwSimRootPath();

@@ -1,7 +1,9 @@
-% Matches real image with simulated images at different depths.
+%% Matches real image with simulated images at different depths.
+% 
+%
+% Copyright, Henryk Blasinski 2017
+%% Initialize and find folders for reading/writing
 
-clear; 
-close all;
 ieInit;
 
 wave = 400:10:700;
@@ -10,9 +12,9 @@ wave = 400:10:700;
 resultFolder = fullfile(parentPath,'Results','Matching');
 if ~exist(resultFolder,'dir'), mkdir(resultFolder); end
 
-%% Rendering parameters
+%% Parameters for simulating the under water environment
 
-cameraDistance = 1000;
+cameraDistance = 1000;   % Units are millimeters????
 
 %{
 depth = linspace(1,20,10)*10^3; % mm
@@ -34,11 +36,13 @@ sceneName = 'UnderwaterChart-All';
 smallParticleConc = 0.0;
 largeParticleConc = 0.0;
 
+% Span the parameter space
 [depthV, chlV, cdomV, spV, lpV] = ndgrid(depth, chlorophyll, cdom,...
     smallParticleConc,...
     largeParticleConc);
 
 %% Create a Canon G7X camera model
+
 fName = fullfile(parentPath,'Parameters','CanonG7X');
 transmissivities = ieReadColorFilter(wave,fName);
 
@@ -66,6 +70,11 @@ for d = 1:numel(depthV)
     
     oiFilePath = fullfile(renderingsFolder,fName);
     data = load(oiFilePath);
+    
+    % Assume the angular width of the simulated OI is 10 deg.  This is a
+    % default and it has little impact on any of our computations.
+    data.oi.wAngular = 10;
+    
     [rgbImageSimulated, avgMacbeth] = simulateCamera(data.oi,sensor);
     simulatedRGB{d} = avgMacbeth;
     
@@ -75,13 +84,12 @@ for d = 1:numel(depthV)
     vcDeleteSomeObjects('oi',1:length(vcGetObjects('oi')));
     vcDeleteSomeObjects('ip',1:length(vcGetObjects('ip')));
 
-    
 end
 
 fName = fullfile(parentPath,'Results','Matching',simName);
 save(fName,'simulatedRGB','depthV','chlV','cdomV','spV','lpV');
 
-%% Load real images
+%% Load raw underwater images and process them with a standard pipeline
 
 % We can get all the images in a particular folder
 % fNames = getFilenames(imagesFolder, 'CR2$');
@@ -90,7 +98,6 @@ save(fName,'simulatedRGB','depthV','chlV','cdomV','spV','lpV');
 fNames = {fullfile('Images','Underwater','07','IMG_4900.CR2'),...
           fullfile('Images','Underwater','12','IMG_7092.CR2'),...
           fullfile('Images','Underwater','10','IMG_6327.CR2')};
-
 nFiles = length(fNames);
 
 measuredRGB = cell(1,nFiles);
@@ -99,26 +106,31 @@ meta = cell(1,nFiles);
 
 for i = 1:nFiles
     
+    % Read the sensor data
     rawCameraFilePath = fullfile(parentPath,fNames{i});
     [~, imageNames{i}, ext] = fileparts(rawCameraFilePath);
     [realSensor, cp, ~, meta{i}] = readCameraImage(rawCameraFilePath, sensor);
-    
     vcAddObject(realSensor);
     sensorWindow();
     
+    % Create a default pipeline
     realIp = ipCreate;
     realIp = ipSet(realIp,'name','Canon G7X');
     realIp = ipCompute(realIp,realSensor);
-    
     vcAddObject(realIp);
     ipWindow();
     
+    % Pull out the macbeth data that we use from image processing
     data = macbethSelect(realSensor,1,1,cp);
     avg = cell2mat(cellfun(@meannan,data,'UniformOutput',false)');
-    
     measuredRGB{i} = avg;
 end
+
+%%  Save the measuredRGB and related information
+
+% These data are used for figure preparation
 
 fName = fullfile(parentPath,'Results','Matching','measuredRGB.mat');
 save(fName,'measuredRGB','imageNames','fNames','meta');
 
+%%

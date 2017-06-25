@@ -1,17 +1,19 @@
-% This script estimates the spectral responsivities of the camera RGB color
-% filters from a collection of images of a spectralon target illuminated
-% with monochromatic lights. 
+%% Compute sensor responsivity
+%
+% Estimate the spectral responsivities of the camera color filters from a
+% collection of images of a spectralon target illuminated with
+% monochromatic lights.
 %
 % Note: We use Adobe DNG converter read in raw data. The data is
-% demosaiced, so it can introduce some errors. We also assume that all
-% imaegs have been captured using the same shutter speed, aperture and ISO
+% demosaicked, so it can introduce some errors. We also assume that all
+% images have been captured using the same shutter speed, aperture and ISO
 % settings. Hence we ignore the overall scaling due to these parameters.
 %
 % Copyright, Henryk Blasinski 2017
 
-close all;
-clear all;
-clc;
+
+%%
+ieInit;
 
 %%                                     
 
@@ -33,8 +35,8 @@ rect = [2731 1707 76 64];
 
 %% Load raw data from camera images.
 
-% First convert to uncompressed DNG using Adobe DNG converter
-% (This may take a while).
+% If necessary, convert to uncompressed DNG using Adobe DNG converter
+% (This may take a while).  Then, read information from the files.
 
 fNames = dir(fullfile(dataDir,'*.CR2'));
 nFiles = length(fNames);
@@ -47,8 +49,11 @@ data = zeros(nFiles,3);
 for i=1:nFiles
    
     filePath = fullfile(dataDir,fNames(i).name);
-    cmd = sprintf('dcraw -v -r 1 1 1 1 -H 0 -o 0 -j -4 -q 0 %s',filePath);
-    system(cmd);
+    fprintf('Processing %s\n',filePath);
+    if ~exist(filePath,'file')
+        cmd = sprintf('dcraw -v -r 1 1 1 1 -H 0 -o 0 -j -4 -q 0 %s',filePath);
+        system(cmd);
+    end
     
     [~, fileName] = fileparts(fNames(i).name);
     fName = fullfile(dataDir,sprintf('%s.ppm',fileName));
@@ -71,10 +76,13 @@ for i=1:nFiles
 end
 
 % Remove .dng files
-for i=1:nFiles
-    [~, fileName] = fileparts(fNames(i).name);
-    delete(fullfile(dataDir,sprintf('%s.ppm',fileName)));
-end
+% If you are more worried about disk space than taking time to recreate,
+% uncomment this code.  It will delete the files after creating them.
+%
+% for i=1:nFiles
+%     [~, fileName] = fileparts(fNames(i).name);
+%     delete(fullfile(dataDir,sprintf('%s.ppm',fileName)));
+% end
 
 %% Compute the responsivity curves
 data = data/max(data(:));
@@ -136,3 +144,4 @@ xlabel('Wavelength, nm');
 
 ieSaveSpectralFile(wavelengths,responsivity,'Canon G7X spectral responsivity curves.',destFile);
 
+%%
