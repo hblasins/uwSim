@@ -25,5 +25,6 @@ addpath(codePath);
 addpath(fullfile(codePath,'Utilities'));
 addpath(fullfile(codePath,'Remodellers'));
 addpath(fullfile(codePath,'VideosAndFigures'));
+addpath(genpath(fullfile(codePath,'ISETtools')));
 
 addpath(fullfile(parentDir,'Parameters'));

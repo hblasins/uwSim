@@ -160,7 +160,7 @@ for i = 1:nConditions
     scatteringFileName = sprintf('scat_%i.spd',i);
     rtbWriteSpectrumFile(waves,sig_s,fullfile(resourceFolder,scatteringFileName));
     phaseFileName = sprintf('phase_%i.txt',i);
-    WritePhaseFile(waves,phase,fullfile(resourceFolder,phaseFileName));
+    writePhaseFile(waves,phase,fullfile(resourceFolder,phaseFileName));
     
     % For every condition, store the corresponding absorption, scattering,
     % and phase filename. 

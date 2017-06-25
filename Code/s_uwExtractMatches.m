@@ -1,5 +1,11 @@
-%% Matches real image with simulated images at different depths.
+%% Extract sensor RGB pixel intensities of real and simulated Macbeth chart.
 % 
+% This script loads the simulated underwater Macbeth chart radiance images  
+% projected onto the sensor and computes the RAW sensor pixel intensities
+% for each of the 24 chart patches. 
+%
+% We perform the same operation (i.e. sample 24 Macbeth chart patches) on a
+% subset of images captured with real camera in underwater environments.
 %
 % Copyright, Henryk Blasinski 2017
 %% Initialize and find folders for reading/writing
@@ -14,7 +20,7 @@ if ~exist(resultFolder,'dir'), mkdir(resultFolder); end
 
 %% Parameters for simulating the under water environment
 
-cameraDistance = 1000;   % Units are millimeters????
+cameraDistance = 1000;  % mm 
 
 %{
 depth = linspace(1,20,10)*10^3; % mm
@@ -87,9 +93,9 @@ for d = 1:numel(depthV)
 end
 
 fName = fullfile(parentPath,'Results','Matching',simName);
-% save(fName,'simulatedRGB','depthV','chlV','cdomV','spV','lpV');
+save(fName,'simulatedRGB','depthV','chlV','cdomV','spV','lpV');
 
-%% Load raw underwater images and process them with a standard pipeline
+%% Load raw underwater images and sample the Macbeth chart.
 
 % We can get all the images in a particular folder
 % fNames = getFilenames(imagesFolder, 'CR2$');
@@ -101,21 +107,20 @@ fNames = {fullfile('Images','Underwater','07','IMG_4900.CR2'),...
 nFiles = length(fNames);
 
 measuredRGB = cell(1,nFiles);
-imageNames = cell(1,nFiles);
 meta = cell(1,nFiles);
 
 for i = 1:nFiles
     
     % Read the sensor data
     rawCameraFilePath = fullfile(parentPath,fNames{i});
-    [~, imageNames{i}, ext] = fileparts(rawCameraFilePath);
+    [~, imageName, ext] = fileparts(rawCameraFilePath);
     [realSensor, cp, ~, meta{i}] = readCameraImage(rawCameraFilePath, sensor);
     vcAddObject(realSensor);
     sensorWindow();
     
     % Create a default pipeline
     realIp = ipCreate;
-    realIp = ipSet(realIp,'name','Canon G7X');
+    realIp = ipSet(realIp,'name',sprintf('Canon G7X: %s', imageName));
     realIp = ipCompute(realIp,realSensor);
     vcAddObject(realIp);
     ipWindow();
@@ -131,6 +136,6 @@ end
 % These data are used for figure preparation
 
 fName = fullfile(parentPath,'Results','Matching','measuredRGB.mat');
-% save(fName,'measuredRGB','imageNames','fNames','meta');
+save(fName,'measuredRGB','imageNames','fNames','meta');
 
 %%

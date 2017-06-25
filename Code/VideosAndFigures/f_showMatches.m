@@ -4,16 +4,12 @@
 %
 % Copyright, Henryk Blasinski 2017
 
-close all;
-clear all;
-clc;
-
 ieInit;
 
 [codePath, parentPath] = uwSimRootPath();
 % If resultFolder = [] no results are saved.
-% resultFolder = fullfile(parentPath,'Results','Matching');
-resultFolder = [];
+resultFolder = fullfile(parentPath,'Results','Matching');
+% resultFolder = [];
 
 %% Create a Canon G7X camera model
 wave = 400:10:700;
