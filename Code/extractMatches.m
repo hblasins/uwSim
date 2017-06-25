@@ -79,7 +79,7 @@ for d = 1:numel(depthV)
 end
 
 fName = fullfile(parentPath,'Results','Matching',simName);
-save(fName,'simulatedRGB','depthV','chlV','cdomV','spV','lpV');
+% save(fName,'simulatedRGB','depthV','chlV','cdomV','spV','lpV');
 
 %% Load real images
 
@@ -120,5 +120,5 @@ for i = 1:nFiles
 end
 
 fName = fullfile(parentPath,'Results','Matching','measuredRGB.mat');
-save(fName,'measuredRGB','imageNames','fNames','meta');
+% save(fName,'measuredRGB','imageNames','fNames','meta');
 
