@@ -2,7 +2,9 @@ function [sig_a, wave] = createAbsorptionCurve(chlConc,cdomConc,varargin)
 
 p = inputParser;
 p.addRequired('chlConc',@isnumeric);
+% Chlorophyll concentrations vary from 0.01 mg/m^3 for oceans, through 10 mg/m^-3 for coasts all the way to 100 mg/m^-3 for lakes.
 p.addRequired('cdomConc',@isnumeric);
+% Reasonable cdomConc values are [0, 0.1] for oceans, [0.1, 0.5] for lakes, up to ~10 for some rivers. 
 p.addOptional('wave',400:10:700,@isvector);
 p.addOptional('plankton',[0.0155 0.0169 0.017 0.0178 0.0184 0.0178 0.0181 0.0171 0.0146 0.0131 0.0121 0.0108 0.0097 0.0088 0.0078 0.0064 0.0052 0.0046 0.0048 0.0049 0.0041 0.0042 0.0049 0.0059 0.0061 0.0054 0.0076 0.0114 0.0111 0.0062 0.0016]);
 p.addOptional('planktonWave',400:10:700);
