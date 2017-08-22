@@ -1,8 +1,8 @@
-function [sig_a, wave] = createAbsorptionCurve(chlConc,domConc,varargin)
+function [sig_a, wave] = createAbsorptionCurve(chlConc,cdomConc,varargin)
 
 p = inputParser;
 p.addRequired('chlConc',@isnumeric);
-p.addRequired('domConc',@isnumeric);
+p.addRequired('cdomConc',@isnumeric);
 p.addOptional('wave',400:10:700,@isvector);
 p.addOptional('plankton',[0.0155 0.0169 0.017 0.0178 0.0184 0.0178 0.0181 0.0171 0.0146 0.0131 0.0121 0.0108 0.0097 0.0088 0.0078 0.0064 0.0052 0.0046 0.0048 0.0049 0.0041 0.0042 0.0049 0.0059 0.0061 0.0054 0.0076 0.0114 0.0111 0.0062 0.0016]);
 p.addOptional('planktonWave',400:10:700);
@@ -17,16 +17,17 @@ pureWaterSpectrum = [0.03508;0.0331178181818182;0.0304084545454545;0.02856227272
 pureWaterWave = [400;405;410;415;420;425;430;435;440;445;450;455;460;465;470;475;480;485;490;495;500;505;510;515;520;525;530;535;540;545;550;555;560;565;570;575;580;585;590;595;600;605;610;615;620;625;630;635;640;645;650;655;660;665;670;675;680;685;690;695;700];
 pureWaterSpectrum = interp1(pureWaterWave,pureWaterSpectrum,inputs.wave);
         
-% Absorption from dissolved organic matter
+% Absorption from non-algal particles (NAP)
+% See Bricaud 1998
 if chlConc ~= 0
-    cnap = 0.0124*chlConc^0.724*exp(-0.011*inputs.wave-440);
+    cnap = 0.0124*chlConc^0.724*exp(-0.011*(inputs.wave-440));
 else
     cnap = 0;
 end
 
-% Absorption from dissolved organic matter
-if(domConc ~= 0)
-    cdom = domConc*exp(-0.014*(inputs.wave - 440));
+% Absorption from colored dissolved organic matter (CDOM a.k.a. gelbstoff)
+if(cdomConc ~= 0)
+    cdom = cdomConc*exp(-0.014*(inputs.wave - 440));
 else
     cdom = 0;
 end
