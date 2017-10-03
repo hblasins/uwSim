@@ -9,7 +9,7 @@ p.addOptional('wave',400:10:700,@isvector);
 p.addOptional('plankton',[0.0155 0.0169 0.017 0.0178 0.0184 0.0178 0.0181 0.0171 0.0146 0.0131 0.0121 0.0108 0.0097 0.0088 0.0078 0.0064 0.0052 0.0046 0.0048 0.0049 0.0041 0.0042 0.0049 0.0059 0.0061 0.0054 0.0076 0.0114 0.0111 0.0062 0.0016]);
 p.addOptional('planktonWave',400:10:700);
 
-p.parse(chlConc, domConc, varargin{:});
+p.parse(chlConc, cdomConc, varargin{:});
 inputs = p.Results;
 
 wave = inputs.wave;

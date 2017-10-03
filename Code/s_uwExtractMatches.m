@@ -120,6 +120,7 @@ for i = 1:nFiles
     
     % Create a default pipeline
     realIp = ipCreate;
+    realIp = ipSet(realIp,'sensor conversion method','none');
     realIp = ipSet(realIp,'name',sprintf('Canon G7X: %s', imageName));
     realIp = ipCompute(realIp,realSensor);
     vcAddObject(realIp);

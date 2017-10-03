@@ -154,6 +154,8 @@ MacOS:
 Linux:
 >> sudo apt-get install dcraw
 ```
+** Apt-get installs a version of DCRaw (9.17) with a small bug where the raw camera data is read in without subtracting the dark pixel level.
+Version 9.27 works correctly, but has to be installed manually. Please follow the instructions posted on DCRaw website.**
 
 ### 5. CVX
 Visit the [CVX site](http://web.cvxr.com/cvx/cvx-maci64.zip) to download the standard `CVX` bundle for Mac OSX. Unzip the archive in your target directory (for example `~/Documents/MATLAB`). After you launch MATLAB, set the `CVX` directory as the working folder and run the `cvx_setup.m` script, which will set up `CVX` on your machine.
