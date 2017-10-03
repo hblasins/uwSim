@@ -111,7 +111,8 @@ scene = mexximpCentralizeCamera(scene);
 % Sunlight (aka distant light)
 fName = fullfile(rtbRoot,'RenderData','D65.spd');
 [wls,spd] = rtbReadSpectrum(fName);
-spd = spd.*10^10; % Add a scale factor.
+spd = Energy2Quanta(wls,spd);
+spd = spd;
 rtbWriteSpectrumFile(wls, spd, fullfile(resourceFolder, 'DistantLight.spd'));
 
 % Macbeth cube reflectances
@@ -151,8 +152,8 @@ cameraDistance = ones(1,nConditions).*camDist; % mm
 
 chlorophyll = ones(1,nConditions).*0.0;
 dom = ones(1,nConditions).*0.0;
-smallParticleConc = ones(1,nConditions).*0.0;
-largeParticleConc = ones(1,nConditions).*0.0;
+smallParticleConc = ones(1,nConditions).*.4;
+largeParticleConc = ones(1,nConditions).*.8;
 
 absorptionFiles = cell(nConditions,1);
 scatteringFiles = cell(nConditions,1);

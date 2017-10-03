@@ -14,7 +14,7 @@ ieInit;
 
 [codePath, parentPath] = uwSimRootPath();
 
-destPath = fullfile(parentPath,'Results','All');
+destPath = fullfile(parentPath,'Results','AllSmall');
 if ~exist(destPath,'dir'), mkdir(destPath); end
 
 %% Choose rendering options
@@ -22,7 +22,7 @@ if ~exist(destPath,'dir'), mkdir(destPath); end
 hints.imageWidth = 320;
 hints.imageHeight = 240;
 
-hints.recipeName = 'UnderwaterChart-All'; % Name of the render
+hints.recipeName = 'UnderwaterChart-AllSmall'; % Name of the render
 hints.renderer = 'PBRT'; % Use PBRT as the renderer
 hints.batchRenderStrategy = RtbAssimpStrategy(hints);
 

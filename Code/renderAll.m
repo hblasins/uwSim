@@ -105,7 +105,7 @@ scene = mexximpCentralizeCamera(scene);
 % Sunlight (aka distant light)
 fName = fullfile(rtbRoot,'RenderData','D65.spd');
 [wls,spd] = rtbReadSpectrum(fName);
-spd = spd.*10^10; % Add a scale factor.
+spd = Energy2Quanta(wls,spd);
 rtbWriteSpectrumFile(wls, spd, fullfile(resourceFolder, 'DistantLight.spd'));
 
 % Macbeth cube reflectances
