@@ -12,6 +12,10 @@ rMax = 20;
 r = linspace(0,rMax,nRadii)';
 dRadii = r(2)-r(1);
 
+binEdges = r;
+binWidth = binEdges(2)-binEdges(1);
+binCenters = binWidth/2:binWidth:binEdges(end);
+
 % Initial light intensity
 I0 = 1;
 
@@ -58,6 +62,7 @@ for nDistSamples = 10;
     title(sprintf('# distance samples %i',nDistSamples));
     plot(r,Ir,'g');
     
+    %{
     %% Uniform distance sampling
     
     numRays = 10000;
@@ -74,10 +79,6 @@ for nDistSamples = 10;
         uf.int(i) = exp(-b*(distance-uf.d(i)))*bt*exp(-b*(sqrt(uf.d(i).^2+uf.rr(i).^2)))*I0;
     end
     
-    binEdges = r;
-    binWidth = binEdges(2)-binEdges(1);
-    binCenters = binWidth/2:binWidth:binEdges(end);
-    
     
     binIndx = discretize(uf.rr(:),binEdges);
     validLocs = ~isnan(binIndx(:));
@@ -87,7 +88,7 @@ for nDistSamples = 10;
     ufIrEst = zeros(length(binCenters),1);
     ufIrEst(1:length(uf.IrEst)) = uf.IrEst; %./uf.numRays;
     
-    plot(binCenters(:),ufIrEst,'b','LineWidth',2);
+    % plot(binCenters(:),ufIrEst,'b','LineWidth',2);
     
     
     %% Non-Uniform distance sampling
@@ -107,10 +108,7 @@ for nDistSamples = 10;
  
         bt = b*interp1(angles,angleDistr,nf.angle(i),'linear',0);
         nf.int(i) = exp(-b*(distance-nf.d(i)))*bt*exp(-b*(sqrt(nf.d(i).^2+nf.rr(i).^2)))*I0;
-    end
-    
-    %%
-    
+    end 
     
     binIndx = discretize(nf.rr(:),binEdges);
     validLocs = ~isnan(binIndx(:));
@@ -120,8 +118,46 @@ for nDistSamples = 10;
     nfIrEst = zeros(length(binCenters),1);
     nfIrEst(1:length(nf.IrEst)) = nf.IrEst; %./nf.numRays;
     
-  
-    plot(binCenters(:),nfIrEst,'r','LineWidth',2);
+    %}
+    
+    %% Correct model
+    numRays = 50000;
+    cr.rr = zeros(numRays,1);
+    cr.angle = zeros(numRays,1);
+    cr.int = zeros(numRays,1);
+    for i=1:numRays;
+        
+        cr.d(i) = rand(1,1)*distance;
+        cr.angle(i) = drawFromDistribution(angles,angleDistr);
+        cr.rr(i) = cr.d(i)*tand(cr.angle(i));
+ 
+        bt = b*interp1(angles,angleDistr,cr.angle(i),'linear',0);
+        cr.int(i) = exp(-b*(distance-cr.d(i)))*bt*exp(-b*(sqrt(cr.d(i).^2+cr.rr(i).^2)))*I0*dDist;
+    end
+    
+    
+    
+    % First we need to bin the rays by radius and by distance at which
+    % stattering occured. Next we average by the number of rays from a
+    % particular distance, and sum them up.
+    
+    distBinId = discretize(cr.d,d);
+    radBinId = discretize(cr.rr,binEdges);
+    validLocs = ~isnan(radBinId(:));
+    
+    radBinId = radBinId(validLocs);
+    distBinId = distBinId(validLocs);
+    int = cr.int(validLocs);
+    
+    TMP = accumarray([radBinId(:), distBinId(:)],int);
+    CNT = accumarray([radBinId(:), distBinId(:)],ones(length(int),1));
+    TMP = TMP./CNT;
+    TMP(isnan(TMP)) = 0;
+    crIrEst = zeros(length(binCenters),1);
+    crIrEst(1:size(TMP,1)) = sum(TMP,2);
+    
+    
+    plot(binCenters(:),crIrEst,'mx');
     
     
 end
