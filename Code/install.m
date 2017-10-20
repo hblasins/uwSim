@@ -28,3 +28,4 @@ addpath(fullfile(codePath,'VideosAndFigures'));
 addpath(genpath(fullfile(codePath,'ISETtools')));
 
 addpath(fullfile(parentDir,'Parameters'));
+

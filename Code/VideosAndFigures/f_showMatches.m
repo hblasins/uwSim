@@ -8,8 +8,8 @@ ieInit;
 
 [codePath, parentPath] = uwSimRootPath();
 % If resultFolder = [] no results are saved.
-resultFolder = fullfile(parentPath,'Results','Matching');
-% resultFolder = [];
+% resultFolder = fullfile(parentPath,'Results','Matching');
+resultFolder = [];
 
 %% Create a Canon G7X camera model
 wave = 400:10:700;
@@ -18,6 +18,7 @@ fName = fullfile(parentPath,'Parameters','CanonG7X');
 transmissivities = ieReadColorFilter(wave,fName);
 
 sensor = sensorCreate('bayer (gbrg)');
+% sensor = sensorCreate('bayer (rggb)');
 sensor = sensorSet(sensor,'filter transmissivities',transmissivities);
 sensor = sensorSet(sensor,'name','Canon G7X');
 sensor = sensorSet(sensor,'noise flag',0);

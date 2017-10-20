@@ -27,6 +27,7 @@ for i=1:size(fieldNames)
 end
 
 % Create an ISET image sensor
+
 sensor = sensorSet(sensor,'size',size(img));
 sensor = sensorSet(sensor,'volts',img);
 
