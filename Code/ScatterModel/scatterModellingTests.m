@@ -1,4 +1,4 @@
-% close all;
+close all;
 clear all;
 clc;
 
@@ -7,8 +7,8 @@ distance = 10;
 
 % Radius is the distance from the point where the ray intersects the sensor
 % plane.
-nRadii = 100;
-rMax = 20;
+nRadii = 50;
+rMax = 10;
 r = linspace(0,rMax,nRadii)';
 dRadii = r(2)-r(1);
 
@@ -32,7 +32,7 @@ angleDistr = exp(-((angles-0).^2)/100);
 angleDistr = angleDistr/(sum(angleDistr));
 
 
-for nDistSamples = 10;
+for nDistSamples = 100;
     
     %% The 'Ground Truth' model
     %  We approximate the integral.
@@ -158,6 +158,51 @@ for nDistSamples = 10;
     
     
     plot(binCenters(:),crIrEst,'mx');
+    
+    %{
+    probDGivenR = CNT./repmat(sum(CNT,2),[1 size(CNT,2)]);
+    figure;
+    hold on; grid on; box on;
+    plot(probDGivenR');
+    %}
+    
+    %% Model where we weight by probability
+    
+    numRays = 50000;
+    pw.rr = zeros(numRays,1);
+    pw.angle = zeros(numRays,1);
+    pw.int = zeros(numRays,1);
+    pw.weight = zeros(numRays,1);
+    for i=1:numRays;
+        
+        pw.d(i) = rand(1,1)*distance;
+        pw.angle(i) = drawFromDistribution(angles,angleDistr);
+        pw.rr(i) = pw.d(i)*tand(pw.angle(i));
+ 
+        pw.weight(i) = interp1(binEdges,probRgivenD(pw.d(i),angles(:),angleDistr(:),binEdges),pw.rr(i));
+        
+        bt = b*interp1(angles,angleDistr,pw.angle(i),'linear',0);
+        pw.int(i) = exp(-b*(distance-pw.d(i)))*bt*exp(-b*(sqrt(pw.d(i).^2+pw.rr(i).^2)))*I0*dDist;
+        
+    end
+    
+    radBinId = discretize(pw.rr,binEdges);
+    validLocs = ~isnan(radBinId(:));
+    
+
+    int = pw.int(validLocs).*pw.weight(validLocs);
+    
+    TMP = accumarray(radBinId(:),int);
+    CNT = accumarray(radBinId(:), pw.weight(validLocs));
+    TMP = TMP./CNT;
+    TMP(isnan(TMP)) = 0;
+    
+    pwIrEst = zeros(length(binCenters),1);
+    pwIrEst(1:size(TMP,1)) = TMP;
+    
+    
+    plot(binCenters(:),pwIrEst/max(pwIrEst)*max(crIrEst),'co');
+    
     
     
 end
