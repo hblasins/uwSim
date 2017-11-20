@@ -7,7 +7,7 @@ distance = 10;
 
 % Radius is the distance from the point where the ray intersects the sensor
 % plane.
-nRadii = 50;
+nRadii = 100;
 rMax = 10;
 r = linspace(0,rMax,nRadii)';
 dRadii = r(2)-r(1);
@@ -28,11 +28,12 @@ angleMax = 90;
 angles = linspace(0,angleMax,nAngles);
 dAngles = angles(2)-angles(1);
 
-angleDistr = exp(-((angles-0).^2)/100);
+angleDistr = exp(-((angles-0).^2)/1000);
 angleDistr = angleDistr/(sum(angleDistr));
 
+numRays = 100000;
 
-for nDistSamples = 100;
+for nDistSamples = 1000
     
     %% The 'Ground Truth' model
     %  We approximate the integral.
@@ -40,6 +41,7 @@ for nDistSamples = 100;
     % Equal width distance intervals along the ray
     d = linspace(0,distance,nDistSamples);
     dDist = d(2) - d(1);
+    dd = dDist/2:dDist:distance;
     
     R = repmat(r,[1 nDistSamples]);
     D = repmat(d,[nRadii 1]);
@@ -57,7 +59,7 @@ for nDistSamples = 100;
     Ir = sum(tmp,2)*I0*dDist;
     
     
-    figure;
+    fi = figure;
     hold on; grid on; box on;
     title(sprintf('# distance samples %i',nDistSamples));
     plot(r,Ir,'g');
@@ -121,18 +123,24 @@ for nDistSamples = 100;
     %}
     
     %% Correct model
-    numRays = 50000;
     cr.rr = zeros(numRays,1);
     cr.angle = zeros(numRays,1);
     cr.int = zeros(numRays,1);
-    for i=1:numRays;
+    cr.weight = zeros(numRays,1);
+    
+    for i=1:numRays
+        
+        
         
         cr.d(i) = rand(1,1)*distance;
         cr.angle(i) = drawFromDistribution(angles,angleDistr);
         cr.rr(i) = cr.d(i)*tand(cr.angle(i));
  
+        cr.weight(i) = interp1(binEdges,probRgivenD(cr.d(i),angles(:),angleDistr(:),binEdges),cr.rr(i));
+        
         bt = b*interp1(angles,angleDistr,cr.angle(i),'linear',0);
         cr.int(i) = exp(-b*(distance-cr.d(i)))*bt*exp(-b*(sqrt(cr.d(i).^2+cr.rr(i).^2)))*I0*dDist;
+        
     end
     
     
@@ -166,43 +174,35 @@ for nDistSamples = 100;
     plot(probDGivenR');
     %}
     
+    
+    figure;
+    hold on; grid on; box on;
+    plot(dd,CNT(2,:)./sum(CNT(2,:)),'x');
+    plot(dd,CNT(20,:)./sum(CNT(20,:)),'ro');
+    
     %% Model where we weight by probability
-    
-    numRays = 50000;
-    pw.rr = zeros(numRays,1);
-    pw.angle = zeros(numRays,1);
-    pw.int = zeros(numRays,1);
-    pw.weight = zeros(numRays,1);
-    for i=1:numRays;
-        
-        pw.d(i) = rand(1,1)*distance;
-        pw.angle(i) = drawFromDistribution(angles,angleDistr);
-        pw.rr(i) = pw.d(i)*tand(pw.angle(i));
- 
-        pw.weight(i) = interp1(binEdges,probRgivenD(pw.d(i),angles(:),angleDistr(:),binEdges),pw.rr(i));
-        
-        bt = b*interp1(angles,angleDistr,pw.angle(i),'linear',0);
-        pw.int(i) = exp(-b*(distance-pw.d(i)))*bt*exp(-b*(sqrt(pw.d(i).^2+pw.rr(i).^2)))*I0*dDist;
-        
-    end
-    
-    radBinId = discretize(pw.rr,binEdges);
+      
+    radBinId = discretize(cr.rr,binEdges);
     validLocs = ~isnan(radBinId(:));
     
 
-    int = pw.int(validLocs).*pw.weight(validLocs);
+    int = cr.int(validLocs)./(cr.weight(validLocs));
     
-    TMP = accumarray(radBinId(:),int);
-    CNT = accumarray(radBinId(:), pw.weight(validLocs));
-    TMP = TMP./CNT;
+    TMP = accumarray(radBinId(validLocs),int);
+    CNT = accumarray(radBinId(validLocs), cr.weight(validLocs));
+    TMP = TMP.*CNT;
     TMP(isnan(TMP)) = 0;
     
     pwIrEst = zeros(length(binCenters),1);
     pwIrEst(1:size(TMP,1)) = TMP;
     
+    figure(fi);
+    plot(binCenters(:),pwIrEst,'go');
     
-    plot(binCenters(:),pwIrEst/max(pwIrEst)*max(crIrEst),'co');
     
-    
+    figure;
+    hold on; grid on; box on;
+    plot(cr.d(radBinId==2),cr.weight(radBinId==2)/CNT(2),'x')
+    plot(cr.d(radBinId==20),cr.weight(radBinId==20)/CNT(20),'ro')
     
 end
