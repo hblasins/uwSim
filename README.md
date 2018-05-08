@@ -43,7 +43,7 @@ render complex 3D scene files.
 * [Docker](https://www.docker.com) - RenderToolbox4 uses either Mitsuba or PBRT renderers to 
 produce final images. Rather than install these programs we provide their dockerized implementations.
 A cross-platform Docker engine is required to run these.
-* [ISET](http://imageval.com) - Image Systems Engineering Toolbox for camera sensor simulations. A light version of ISET is provided with this code repository.
+* [ISET](https://github.com/ISET/isetcam) - Image Systems Engineering Toolbox for camera sensor simulations. A light version of ISET is provided with this code repository.
 * [DCRaw](https://www.cybercom.net/~dcoffin/dcraw/) - a simple program for reading raw camera images.
 * [CVX](http://cvxr.com/) - a Matlab toolbox for convex optimization. As an alternative MATLAB Optimization Toolbox can also be used. **As of 06/2017 CVX is only supported on MATLAB 2016b and older.**
 
@@ -171,7 +171,7 @@ Clone this repository to your local drive
 
 ## Getting started
 
-To get you started please have a look (and run) at the `Code/renderUnderwaterChart.m` script. This is a simple script that renders an image of a Macbeth chart submertged in water. You can specify a number of parameters that affect the final image appearance :
+To get you started please have a look (and run) at the [Code/s_uwRenderUnderwaterChart.m](Code/s_uwRenderUnderwaterChart.m) script. This is a simple script that renders an image of a Macbeth chart submertged in water. You can specify a number of parameters that affect the final image appearance :
 * depth
 * camera to chart distance
 * chlorophyll concentraion
