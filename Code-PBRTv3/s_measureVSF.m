@@ -11,7 +11,7 @@ delta = 10;
 totalLight = [];
 
 
-angles = [1 15 30 45 60 57 90 105 120 135 150 165 179];
+angles = [1 15 30 45 60 75 90 105 120 135 150 165 179];
 % angles = 45;
 for a=1:length(angles)
     
@@ -21,9 +21,9 @@ for a=1:length(angles)
     z = -cosd(angle);
 
     recipe = piCreateBacklight('from',[x 0 z]);
-    [recipe, properties] = piSceneSubmerge(recipe,'height', 0.01, 'width', 0.01, 'depth', 0.01, 'cSmall',0.01);
+    [recipe, properties] = piSceneSubmerge(recipe,'sizeX', 0.01, 'sizeY', 0.01, 'sizeZ', 0.01, 'cLarge', 0.00);
 
-    recipe.set('pixel samples',1024);
+    recipe.set('pixel samples',32);
 
     recipe.set('film resolution',resolution);
     recipe.set('film diagonal', 6);
@@ -35,7 +35,7 @@ for a=1:length(angles)
     recipe.set('outputFile',fullfile(piRootPath,'local','VSF',sprintf('vsf_%i.pbrt',a)));
     piWrite(recipe,'creatematerials',true);
     [withSample(i), result] = piRender(recipe,'dockerimagename','hblasins/pbrt-v3-spectral:underwater',...
-                                              'meanluminance',-1);
+                                              'scaleIlluminance',false);
 
     ieAddObject(withSample(i));
     sceneWindow();

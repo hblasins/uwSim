@@ -2,9 +2,9 @@
 ieInit;
 if ~piDockerExists, piDockerConfig; end
 
-thickness = 1;
-height = 0.01;
-depth = 0.01;
+sizeZ = 5;
+sizeX = 0.01;
+sizeY = 0.01;
 
 %% Create a backlight
 
@@ -24,15 +24,13 @@ recipe.sampler.jitter.value = 'false';
 
 recipe.set('outputFile','/Users/hblasinski/Documents/MATLAB/iset3d/local/transmission/baseline.pbrt');
 
-baseline = piSceneSubmerge(recipe,'height',height,'width', thickness ,'depth', depth, 'offsetW', 0, ...
-                                                                            'wallOnly', true, ...
-                                                                            'wallYZ', true, ...
-                                                                            'wallXZ', true);
+baseline = piSceneSubmerge(recipe, 'sizeX', sizeX, 'sizeY', sizeY, 'sizeZ', sizeZ, ...
+                                   'wallOnly', true,  'wallYZ', true,  'wallXZ', true);
                                                                         
 piWrite(baseline,'creatematerials',true);
 
 [reference, result] = piRender(baseline,'dockerimagename','hblasins/pbrt-v3-spectral:underwater',...
-                               'meanluminance',-1);
+                               'scaleIlluminance', false);
 ieAddObject(reference);
 sceneWindow();
 
@@ -41,23 +39,22 @@ sceneWindow();
 
 params = [ 0 0 0;
           10 0 0;
-          10 1 1];
+          10 0.1 0.1];
 
 
 for p=1:size(params,1)   
     
     
     
-    [sample, properties] = piSceneSubmerge(recipe,'height', height, 'width', thickness, 'depth',  depth, 'offsetW', 0, ...
+    [sample, properties] = piSceneSubmerge(recipe,'sizeX', sizeX, 'sizeY', sizeY, 'sizeZ',  sizeZ,  ...
                                            'cPlankton', params(p,1), 'aCDOM440', params(p,2) ,'aNAP400', params(p,3),...
-                                           'waterSct', false, 'cSmall', 0,  'wallYZ', true, ...
-                                                                            'wallXZ', true);
+                                           'waterSct', false, 'cSmall', 0,  'wallYZ', true, 'wallXZ', true);
                                        
     sample.set('outputFile',fullfile(piRootPath,'local','transmission',sprintf('sample_%i.pbrt',p)));
     piWrite(sample,'creatematerials',true);
 
     [withSample(p), result] = piRender(sample,'dockerimagename','hblasins/pbrt-v3-spectral:underwater',...
-                                       'meanluminance',-1);
+                                       'scaleIlluminance',false);
 
     ieAddObject(withSample(p));
     sceneWindow();
@@ -81,7 +78,7 @@ for p=1:size(params,1)
    
     abs = water ./ light;
     abs = abs(:);
-    abs = -log(abs) / (thickness);
+    abs = -log(abs) / (sizeZ);
 
     trueAbs = interp1(properties.wave(:), properties.absorption(:), wave(:));
     

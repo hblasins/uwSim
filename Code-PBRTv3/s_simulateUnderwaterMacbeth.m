@@ -37,6 +37,9 @@ piWrite(macbethRecipe,'creatematerials',true);
 ieAddObject(mbScene);
 sceneWindow();
 
+fName = fullfile(dataDir,'macbethChart.mat');
+save(fName,'mbScene');
+
 
 %% Create a water sample
 
