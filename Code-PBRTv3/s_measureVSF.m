@@ -6,7 +6,7 @@ if ~piDockerExists, piDockerConfig; end
 
 i = 1;
 resolution = [320   240];
-delta = 10;
+delta = 50;
 
 totalLight = [];
 
@@ -23,7 +23,7 @@ for a=1:length(angles)
     recipe = piCreateBacklight('from',[x 0 z]);
     [recipe, properties] = piSceneSubmerge(recipe,'sizeX', 0.01, 'sizeY', 0.01, 'sizeZ', 0.01, 'cLarge', 0.00);
 
-    recipe.set('pixel samples',32);
+    recipe.set('pixel samples',1024);
 
     recipe.set('film resolution',resolution);
     recipe.set('film diagonal', 6);
@@ -34,12 +34,17 @@ for a=1:length(angles)
     
     recipe.set('outputFile',fullfile(piRootPath,'local','VSF',sprintf('vsf_%i.pbrt',a)));
     piWrite(recipe,'creatematerials',true);
-    [withSample(i), result] = piRender(recipe,'dockerimagename','hblasins/pbrt-v3-spectral:underwater',...
-                                              'scaleIlluminance',false);
+    [withSample(a), result] = piRender(recipe,'dockerimagename','hblasins/pbrt-v3-spectral:underwater',...
+                                              'meanluminance',-1);
 
-    ieAddObject(withSample(i));
-    sceneWindow();
-    
+    ieAddObject(withSample(a));
+    % sceneWindow();
+    rgb = sceneGet(withSample(a),'rgb');
+    figure; imshow(rgb);
+end
+
+totalLight = [];
+for i=1:length(angles)
     wave = sceneGet(withSample(i),'wave');
     light = sceneGet(withSample(i), 'roi energy', [resolution(1)/2-delta resolution(2)/2-delta 2*delta 2*delta]);
     light(light == 0) = NaN;
@@ -48,7 +53,6 @@ for a=1:length(angles)
 
     totalLight = cat(1,totalLight,light);
     
-    i = i+1;
 end
 %% Phase function
 %  Phase function need not be wavelength dependent
@@ -65,7 +69,7 @@ for w=1:length(selWaves)
     
     figure;
     hold on; grid on; box on;
-    plot(180 - angles, estimate);
+    plot(180 - angles, estimate,'x');
     plot(properties.angles / pi * 180, true);
     legend('estimated','true');
     set(gca,'yscale','log');
@@ -81,16 +85,17 @@ for a = 1:length(selAngles)
     
     angle = (180 - selAngles(a)) / 180;
     
-    estimate = interp1(angles, totalLight, selAngles(a));
+    estimate = interp1(angles', totalLight, selAngles(a));
     estimate = estimate / max(estimate);
     
     true = interp1(properties.angles, properties.vsf',angle * pi);
+    true = interp1(properties.wave, true, wave);
     true = true / max(true);
     
     figure; 
     hold on; grid on; box on;
-    plot(properties.wave, true(:));
-    plot(wave, estimate(:));
+    plot(wave, true(:));
+    plot(wave, estimate(:),'x');
     xlabel('Wavelength, nm');
     ylabel('Intensity');
     legend('true','estimate');

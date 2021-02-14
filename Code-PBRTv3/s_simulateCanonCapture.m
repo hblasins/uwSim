@@ -64,7 +64,7 @@ for f=1:length(sceneFiles)
     
     save(fName,'sensorValues','ispValues','ispImage','params','ispResult');
     
-     % If you have a lot of data you'd beter remove some 
+    % If you have a lot of data you'd beter remove some 
     % oi, scene and ip files from ISET global variables.
     vcDeleteSomeObjects('sensor',1:length(vcGetObjects('sensor')));    
     vcDeleteSomeObjects('oi',1:length(vcGetObjects('oi')));

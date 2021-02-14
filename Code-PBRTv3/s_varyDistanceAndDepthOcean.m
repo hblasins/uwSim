@@ -43,7 +43,7 @@ depths = logspace(-1,1.7,50);
 
 [distVec, depthVec] = ndgrid(distances, depths);
 
-currPlankton = 0;
+currPlankton = 0.2;
 currCDOM = 0.02;
 currNAP = 0;
 currSmall = 0.01;

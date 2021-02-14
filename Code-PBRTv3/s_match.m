@@ -44,7 +44,7 @@ meta = cell(1,nFiles);
 
 allMatches = cell(1,nFiles);
 
-for i = 1:nFiles
+for i = 1:1 %nFiles
     
     
     rawCameraCalibrtionFilePath = fullfile(parentPath,calibfNames{i});
